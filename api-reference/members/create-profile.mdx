@@ -4,6 +4,13 @@ description: Enroll a new member in your loyalty program.
 openapi: "POST /lbms-ingress/member/api/Member/CreateProfileWithAttributes"
 ---
 
+## Authorization
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
+
 ## Query Parameters
 
 | Parameter | Type | Required | Description |
@@ -18,7 +25,7 @@ openapi: "POST /lbms-ingress/member/api/Member/CreateProfileWithAttributes"
 | `full_name` | string | Yes | Member's full name |
 | `email_id` | string | Yes | Member's email address |
 | `mobile_number` | string | Yes | Member's mobile number |
-| `status` | string | Yes | Member status code. Use `5` for Inactive (standard initial state). |
+| `status` | string | Yes | Use `5` for Inactive (standard initial state for new enrollments) |
 | `address` | string | No | Member's address |
 | `gender` | string | No | `M`, `F`, or `O` |
 | `dob` | string | No | Date of birth in `YYYY-MM-DD` format |
@@ -27,11 +34,21 @@ openapi: "POST /lbms-ingress/member/api/Member/CreateProfileWithAttributes"
   Any mandatory custom attributes defined in your CPD schema must also be included. Optional custom attributes can also be passed.
 </Note>
 
-## Response Schema
+## Responses
+
+### 200 — Success
 
 | Path | Type | Description |
 |---|---|---|
-| `results.IsSucessful` | boolean | `true` on success |
-| `results.ErrorCode` | string | `000` on success, error code otherwise |
-| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.IsSucessful` | boolean | `true` |
+| `results.ErrorCode` | string | `000` |
+| `results.ExceptionMessage` | string | `Success` |
 | `results.ReturnObject` | boolean | `true` on successful enrollment |
+
+### 409 — Member Already Exists
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `false` |
+| `results.ErrorCode` | string | `E409` |
+| `results.ExceptionMessage` | string | `Member already exists` |

@@ -8,6 +8,12 @@ openapi: "GET /lbms-ingress/member/api/Member/GetMemberProfile"
   Query parameters must be URL-encoded before sending. For example, `jane.doe@example.com` becomes `jane.doe%40example.com`.
 </Warning>
 
+## Authorization
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+
 ## Query Parameters
 
 | Parameter | Type | Required | Description |
@@ -16,17 +22,26 @@ openapi: "GET /lbms-ingress/member/api/Member/GetMemberProfile"
 | `pintRelationType` | integer | Yes | Relation type. Use `4` for customers. |
 | `pstrRelationReference` | string | Yes | The member's unique reference. URL-encode before passing. |
 
-## Response Schema
+## Responses
+
+### 200 — Success
 
 | Path | Type | Description |
 |---|---|---|
-| `results.IsSucessful` | boolean | `true` on success |
-| `results.ErrorCode` | string | `000` on success |
-| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.IsSucessful` | boolean | `true` |
+| `results.ErrorCode` | string | `000` |
 | `results.ReturnObject.Id` | integer | Internal member ID — required for Update Profile |
 | `results.ReturnObject.FullName` | string | Member's full name |
 | `results.ReturnObject.Email` | string | Member's email |
 | `results.ReturnObject.MobileNumber` | string | Member's mobile number |
 | `results.ReturnObject.Status` | string | Member status (e.g. `Active`) |
 | `results.ReturnObject.TierName` | string | Current loyalty tier (e.g. Silver, Gold, Platinum) |
-| `results.ReturnObject.TotalPoints` | integer | Total points in the member's account |
+| `results.ReturnObject.TotalPoints` | integer | Total points balance |
+
+### 404 — Not Found
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `false` |
+| `results.ErrorCode` | string | Error code |
+| `results.ExceptionMessage` | string | Error description |

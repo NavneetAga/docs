@@ -8,6 +8,13 @@ openapi: "POST /lbms-ingress/member/api/Member/GenerateOTP"
 
 Use this when the member's **email address** is known. If you have their `RelationReference` (CID) instead, use [Generate OTP by Relation Reference](/api-reference/otp/generate-otp-by-relation).
 
+## Authorization
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
+
 ## Body Parameters
 
 | Parameter | Type | Required | Description |
@@ -30,13 +37,15 @@ Use this when the member's **email address** is known. If you have their `Relati
 | `RESETPASSWORD` | Reset password |
 | `TwoFA` | Two-factor authentication |
 
-## Response Schema
+## Responses
+
+### 200 — Success
 
 | Path | Type | Description |
 |---|---|---|
-| `results.IsSucessful` | boolean | `true` on success |
-| `results.ErrorCode` | string | `000` on success |
-| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.IsSucessful` | boolean | `true` |
+| `results.ErrorCode` | string | `000` |
+| `results.ExceptionMessage` | string | `Success` |
 | `results.ReturnObject` | boolean | `true` when OTP is sent |
 | `results.Count` | integer | Always `0` |
 

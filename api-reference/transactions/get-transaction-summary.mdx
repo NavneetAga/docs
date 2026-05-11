@@ -4,6 +4,13 @@ description: Retrieve a paginated list of a member's loyalty transactions within
 openapi: "POST /lbms-ingress/transaction-lm/API/Transaction/GetMemberTransactionSummaryByDate"
 ---
 
+## Authorization
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
+
 ## Body Parameters
 
 | Parameter | Type | Required | Description |
@@ -17,11 +24,13 @@ openapi: "POST /lbms-ingress/transaction-lm/API/Transaction/GetMemberTransaction
 | `RelationType` | integer | Yes | Use `4` for customers |
 | `ProgramId` | integer | Yes | Your loyalty program ID |
 
-## Response Schema
+## Responses
+
+### 200 — Success
 
 | Path | Type | Description |
 |---|---|---|
-| `results.IsSucessful` | boolean | `true` on success |
+| `results.IsSucessful` | boolean | `true` |
 | `results.Count` | integer | Total matching records — use for pagination |
 | `results.ReturnObject[].Id` | integer | Internal transaction ID |
 | `results.ReturnObject[].Points` | integer | Points earned or redeemed |
@@ -32,8 +41,6 @@ openapi: "POST /lbms-ingress/transaction-lm/API/Transaction/GetMemberTransaction
 | `results.ReturnObject[].LoyaltyTxnType` | integer | `1`=Spend, `2`=Earn/Bonus |
 
 ## Pagination
-
-To retrieve the next page, increment `MinimumRange` by your page size:
 
 ```
 Page 1: MinimumRange=0,  MaximumRange=10

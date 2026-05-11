@@ -6,7 +6,14 @@ openapi: "POST /lbms-ingress/transaction-lm/API/Transaction/InsertTransactionDat
 
 ## When to Use
 
-Use this for **synchronous** single-transaction submission — the Rule Engine processes it immediately and awards points. For bulk/async use [Insert Transaction V2](/api-reference/transactions/insert-transaction-v2).
+Use for **synchronous** single-transaction submission — processed immediately by the Rule Engine. For bulk/async use [Insert Transaction V2](/api-reference/transactions/insert-transaction-v2).
+
+## Authorization
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
 
 ## Query Parameters
 
@@ -27,14 +34,24 @@ Use this for **synchronous** single-transaction submission — the Rule Engine p
 | `sub_product_code` | string | No | Sub-product or SKU code |
 
 <Note>
-  Field names, `product_code`, and `transaction_type` values are enforced per your program's event template. Align with your onboarding pack. Custom attributes must be created in Loyalife Admin before use.
+  Field names, `product_code`, and `transaction_type` values are enforced per your program's event template. Custom attributes must be created in Loyalife Admin before use.
 </Note>
 
-## Response Schema
+## Responses
+
+### 200 — Success
 
 | Path | Type | Description |
 |---|---|---|
-| `results.IsSucessful` | boolean | `true` on success |
-| `results.ErrorCode` | string | `000` on success |
-| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.IsSucessful` | boolean | `true` |
+| `results.ErrorCode` | string | `000` |
+| `results.ExceptionMessage` | string | `Success` |
 | `results.ReturnObject` | boolean | `true` on successful submission |
+
+### 400 — Invalid Request
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `false` |
+| `results.ErrorCode` | string | `E400` |
+| `results.ExceptionMessage` | string | e.g. `Invalid product code` |

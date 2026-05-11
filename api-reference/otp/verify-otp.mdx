@@ -6,7 +6,14 @@ openapi: "POST /lbms-ingress/member/api/Member/VerifyOTP"
 
 ## When to Use
 
-Step 2 of the OTP flow started by [Generate OTP](/api-reference/otp/generate-otp). Use when `UniquerefID` is the member's **email address**. For flows started via [Generate OTP by Relation Reference](/api-reference/otp/generate-otp-by-relation), use [Verify OTP by Relation Reference](/api-reference/otp/verify-otp-by-relation).
+Step 2 of the OTP flow started by [Generate OTP](/api-reference/otp/generate-otp). For flows started via [Generate OTP by Relation Reference](/api-reference/otp/generate-otp-by-relation), use [Verify OTP by Relation Reference](/api-reference/otp/verify-otp-by-relation).
+
+## Authorization
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
 
 ## Body Parameters
 
@@ -20,11 +27,21 @@ Step 2 of the OTP flow started by [Generate OTP](/api-reference/otp/generate-otp
 | `ProgramId` | integer | Yes | Your loyalty program ID |
 | `RelationType` | integer | Yes | Use `4` for customers |
 
-## Response Schema
+## Responses
+
+### 200 — Success
 
 | Path | Type | Description |
 |---|---|---|
-| `results.IsSucessful` | boolean | `true` on success |
-| `results.ErrorCode` | string | `000` on success, `E400` on invalid OTP |
-| `results.ExceptionMessage` | string | `Success` or `Invalid or expired OTP` |
+| `results.IsSucessful` | boolean | `true` |
+| `results.ErrorCode` | string | `000` |
+| `results.ExceptionMessage` | string | `Success` |
 | `results.ReturnObject` | boolean | `true` on successful verification |
+
+### 400 — Invalid OTP
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `false` |
+| `results.ErrorCode` | string | `E400` |
+| `results.ExceptionMessage` | string | `Invalid or expired OTP` |

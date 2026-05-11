@@ -6,7 +6,13 @@ openapi: "GET /lbms-ingress/member/api/Member/GetMemberDetailsByUniqueAttribute"
 
 ## When to Use
 
-Use this endpoint when you know a member's email or another unique field but don't have their `RelationReference`. The attribute must be part of your User schema in Loyalife Admin and marked as **unique**.
+Use this when you know a member's email or another unique field but don't have their `RelationReference`. The attribute must be part of your User schema in Loyalife Admin and marked as **unique**.
+
+## Authorization
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
 
 ## Query Parameters
 
@@ -16,16 +22,25 @@ Use this endpoint when you know a member's email or another unique field but don
 | `pstrUniqueAttributeKey` | string | Yes | Attribute name to search by (e.g. `email_id`, `mobile_number`). URL-encode before passing. |
 | `pstrUniqueAttributeValue` | string | Yes | Value to search for. URL-encode before passing. |
 
-## Response Schema
+## Responses
+
+### 200 — Success
 
 | Path | Type | Description |
 |---|---|---|
-| `results.IsSucessful` | boolean | `true` on success |
-| `results.ErrorCode` | string | `000` on success |
-| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.IsSucessful` | boolean | `true` |
+| `results.ErrorCode` | string | `000` |
 | `results.ReturnObject.Id` | integer | Internal member ID |
 | `results.ReturnObject.FullName` | string | Member's full name |
 | `results.ReturnObject.Email` | string | Member's email |
 | `results.ReturnObject.RelationReference` | string | Member's RelationReference (CID) |
 | `results.ReturnObject.TierName` | string | Current loyalty tier |
 | `results.ReturnObject.TotalPoints` | integer | Total points balance |
+
+### 404 — Not Found
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `false` |
+| `results.ErrorCode` | string | Error code |
+| `results.ExceptionMessage` | string | Error description |

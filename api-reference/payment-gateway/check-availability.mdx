@@ -6,6 +6,13 @@ openapi: "POST /lbms-ingress/pg-lm/API/PG/CheckAvailability"
 
 Always call this **before** [Redeem Points](/api-reference/payment-gateway/redeem-points) to confirm the member has enough points.
 
+## Authorization
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
+
 ## Body Parameters
 
 | Parameter | Type | Required | Description |
@@ -15,13 +22,15 @@ Always call this **before** [Redeem Points](/api-reference/payment-gateway/redee
 | `RelationType` | integer | Yes | Use `4` for customers |
 | `ProgramId` | integer | Yes | Your loyalty program ID |
 
-## Response Schema
+## Responses
+
+### 200 — Success
 
 | Path | Type | Description |
 |---|---|---|
-| `results.IsSucessful` | boolean | `true` on success |
-| `results.ErrorCode` | string | `000` on success |
-| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.IsSucessful` | boolean | `true` |
+| `results.ErrorCode` | string | `000` |
+| `results.ExceptionMessage` | string | `Success` |
 | `results.ReturnObject` | integer | **The member's current redeemable points balance** |
 
 ## Typical Flow

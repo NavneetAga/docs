@@ -6,7 +6,14 @@ openapi: "POST /lbms-ingress/transaction-lm/API/Transaction/InsertTransactionDat
 
 ## When to Use
 
-Use for **batch or async** transaction submission. Returns a `batch_id` — poll with [Poll Batch Status](/api-reference/transactions/poll-batch-status) for outcomes. For a single synchronous transaction, use [Insert Transaction](/api-reference/transactions/insert-transaction).
+Use for **batch or async** transaction submission. For a single synchronous transaction, use [Insert Transaction](/api-reference/transactions/insert-transaction).
+
+## Authorization
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
 
 ## Query Parameters
 
@@ -29,16 +36,18 @@ The request body is a **JSON array** of transaction objects.
 | `transaction_type` | string | Yes | `dr` or `cr` as defined for your program |
 | `sub_product_code` | string | No | Sub-product or SKU code |
 
-## Response Schema
+## Responses
+
+### 202 — Accepted
 
 | Path | Type | Description |
 |---|---|---|
-| `results.IsSucessful` | boolean | `true` on success |
-| `results.ErrorCode` | string | `000` on success |
-| `results.ExceptionMessage` | string | `Success` or error description |
-| `results.ReturnObject.batch_id` | string (UUID) | Identifies this batch. Pass to Poll Batch Status. |
+| `results.IsSucessful` | boolean | `true` |
+| `results.ErrorCode` | string | `000` |
+| `results.ExceptionMessage` | string | `Success` |
+| `results.ReturnObject.batch_id` | string (UUID) | Identifies this batch. Pass to [Poll Batch Status](/api-reference/transactions/poll-batch-status). |
 | `results.ReturnObject.message` | string | `Transactions queued successfully` |
-| `results.ReturnObject.total_transactions` | integer | Number of transactions accepted into the batch |
+| `results.ReturnObject.total_transactions` | integer | Number of transactions accepted |
 
 ## What Happens Next
 
@@ -47,7 +56,7 @@ The request body is a **JSON array** of transaction objects.
     Save `ReturnObject.batch_id` in your system.
   </Step>
   <Step title="Poll for completion">
-    Call [Poll Batch Status](/api-reference/transactions/poll-batch-status) until `summary.pending === 0` or your SLA timeout is reached.
+    Call [Poll Batch Status](/api-reference/transactions/poll-batch-status) until `summary.pending === 0`.
   </Step>
   <Step title="Handle per-item outcomes">
     Each item resolves to `SUCCESS`, `FAILED`, `ON HOLD`, `PARTIAL HOLD`, or `PENDING`.

@@ -6,6 +6,13 @@ openapi: "POST /lbms-ingress/member/api/Member/UpdateProfileWithAttributes"
 
 Obtain the `id` from the `Id` field in [Get Member Profile](/api-reference/members/get-member-profile).
 
+## Authorization
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
+
 ## Query Parameters
 
 | Parameter | Type | Required | Description |
@@ -28,11 +35,13 @@ Obtain the `id` from the `Id` field in [Get Member Profile](/api-reference/membe
   At least one `data.*` field must be present. Custom attributes from your CPD schema can also be included under `data`.
 </Note>
 
-## Response Schema
+## Responses
+
+### 200 — Success
 
 | Path | Type | Description |
 |---|---|---|
-| `results.IsSucessful` | boolean | `true` on success |
-| `results.ErrorCode` | string | `000` on success |
-| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.IsSucessful` | boolean | `true` |
+| `results.ErrorCode` | string | `000` |
+| `results.ExceptionMessage` | string | `Success` |
 | `results.ReturnObject` | boolean | `true` on successful update |

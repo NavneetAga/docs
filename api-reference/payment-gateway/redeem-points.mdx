@@ -10,6 +10,13 @@ Call this after [Check Availability](/api-reference/payment-gateway/check-availa
   Save the `ExternalReference` UUID immediately. If downstream fulfillment fails, you'll need it to call [Reversal Points](/api-reference/payment-gateway/reversal-points) and restore the member's balance.
 </Warning>
 
+## Authorization
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
+
 ## Body Parameters
 
 | Parameter | Type | Required | Description |
@@ -32,11 +39,13 @@ Call this after [Check Availability](/api-reference/payment-gateway/check-availa
 | `19` | Charity |
 | `30` | Gift Card |
 
-## Response Schema
+## Responses
+
+### 200 — Success
 
 | Path | Type | Description |
 |---|---|---|
-| `results.IsSucessful` | boolean | `true` on success |
-| `results.ErrorCode` | string | `000` on success |
-| `results.ExceptionMessage` | string | `Success` or error description |
-| `results.ReturnObject` | string (UUID) | **`ExternalReference` for this transaction. Store this for potential reversal.** |
+| `results.IsSucessful` | boolean | `true` |
+| `results.ErrorCode` | string | `000` |
+| `results.ExceptionMessage` | string | `Success` |
+| `results.ReturnObject` | string (UUID) | **`ExternalReference` for this transaction. Store for potential reversal.** |

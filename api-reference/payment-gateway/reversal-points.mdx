@@ -4,7 +4,14 @@ description: Reverse a redemption transaction and restore the member's points ba
 openapi: "POST /lbms-ingress/pg-lm/API/PG/ReversalPoints"
 ---
 
-Use when a redemption needs to be cancelled — for example, a booking error or gift card not issued. You must have the `ExternalReference` UUID from [Redeem Points](/api-reference/payment-gateway/redeem-points).
+Use when a redemption needs to be cancelled (e.g. booking error, gift card not issued). You must have the `ExternalReference` UUID from [Redeem Points](/api-reference/payment-gateway/redeem-points).
+
+## Authorization
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
 
 ## Body Parameters
 
@@ -15,13 +22,15 @@ Use when a redemption needs to be cancelled — for example, a booking error or 
 | `ExternalReference` | string (UUID) | Yes | The UUID returned by `RedeemPoints` |
 | `ProgramId` | integer | Yes | Your loyalty program ID |
 
-## Response Schema
+## Responses
+
+### 200 — Success
 
 | Path | Type | Description |
 |---|---|---|
-| `results.IsSucessful` | boolean | `true` on success |
-| `results.ErrorCode` | string | `000` on success |
-| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.IsSucessful` | boolean | `true` |
+| `results.ErrorCode` | string | `000` |
+| `results.ExceptionMessage` | string | `Success` |
 | `results.ReturnObject` | boolean | `true` when reversal is complete and points are restored |
 
 ## Redemption Flow

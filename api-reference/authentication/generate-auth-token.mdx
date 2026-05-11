@@ -8,6 +8,13 @@ openapi: "POST /lbms-ingress/oauth/api/Auth/Token"
   This is the first call you make. The token returned here must be included in the `Authorization` header of every subsequent API request.
 </Note>
 
+## Headers
+
+| Header | Value | Required |
+|---|---|---|
+| `Content-Type` | `application/json` | Yes |
+| `Accept` | `application/json` | Yes |
+
 ## Body Parameters
 
 | Parameter | Type | Required | Description |
@@ -17,12 +24,22 @@ openapi: "POST /lbms-ingress/oauth/api/Auth/Token"
 | `client_secret` | string | Yes | OAuth client secret. Never expose in client-side code. |
 | `scope` | string | No | Binds the token to a specific member. JSON-encoded array: `["LOGIN","{RelationReference}"]`. Omit for a general-purpose program token. |
 
-## Response Schema
+## Responses
+
+### 200 — Success
 
 | Path | Type | Description |
 |---|---|---|
 | `results.token` | string | JWT bearer token. Use as `Authorization: bearer {token}` in all subsequent calls. |
-| `results.tokenExpiresOn` | string | ISO 8601 expiry timestamp. Refresh before this time. |
+| `results.tokenExpiresOn` | string (date-time) | ISO 8601 expiry timestamp. Refresh before this time. |
+
+### 401 — Invalid Credentials
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `false` |
+| `results.ErrorCode` | string | `E401` |
+| `results.ExceptionMessage` | string | `Invalid client credentials` |
 
 ## Usage Notes
 
