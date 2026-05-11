@@ -4,9 +4,7 @@ description: Validate an OTP sent via Generate OTP (email-based).
 openapi: "POST /lbms-ingress/member/api/Member/VerifyOTP"
 ---
 
-## When to Use
-
-Step 2 of the OTP flow started by [Generate OTP](/api-reference/otp/generate-otp). For flows started via [Generate OTP by Relation Reference](/api-reference/otp/generate-otp-by-relation), use [Verify OTP by Relation Reference](/api-reference/otp/verify-otp-by-relation).
+Validates the OTP entered by the member against the one dispatched via [Generate OTP](/api-reference/otp/generate-otp). The `OtpType` must match what was used in the generate call. A successful response confirms the member's identity for the specified action (login, password reset, etc.). OTPs are time-limited and single-use — a `400` response means the code has either expired or was already consumed.
 
 ## Authorization
 

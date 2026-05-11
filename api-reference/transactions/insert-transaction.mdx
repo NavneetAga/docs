@@ -4,9 +4,7 @@ description: Submit a synchronous loyalty transaction for a member.
 openapi: "POST /lbms-ingress/transaction-lm/API/Transaction/InsertTransactionData"
 ---
 
-## When to Use
-
-Use for **synchronous** single-transaction submission — processed immediately by the Rule Engine. For bulk/async use [Insert Transaction V2](/api-reference/transactions/insert-transaction-v2).
+Submits a single loyalty transaction — a purchase, earn event, or reversal — and returns the result synchronously after the Rule Engine has evaluated it. Use this for real-time integrations where you need the outcome (points awarded, holds triggered) before responding to the customer. For high-volume or end-of-day batch uploads, use [Insert Transaction V2](/api-reference/transactions/insert-transaction-v2) instead, which handles arrays of transactions asynchronously and is significantly more efficient at scale.
 
 ## Authorization
 

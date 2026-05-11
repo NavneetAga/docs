@@ -4,9 +4,7 @@ description: Submit one or more transactions asynchronously for bulk processing.
 openapi: "POST /lbms-ingress/transaction-lm/API/Transaction/InsertTransactionDataV2"
 ---
 
-## When to Use
-
-Use for **batch or async** transaction submission. For a single synchronous transaction, use [Insert Transaction](/api-reference/transactions/insert-transaction).
+Accepts an array of loyalty transactions and queues them for asynchronous processing by the Rule Engine. The API returns immediately with a `batch_id` — processing happens in the background. This is the recommended approach for end-of-day batch uploads, POS system syncs, or any integration where you're submitting multiple transactions at once. Use the `_xoxo_api_client_idempotency` field on each transaction to safely retry failed submissions without duplicating points.
 
 ## Authorization
 

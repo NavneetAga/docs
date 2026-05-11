@@ -4,7 +4,7 @@ description: Update an existing member's profile attributes.
 openapi: "POST /lbms-ingress/member/api/Member/UpdateProfileWithAttributes"
 ---
 
-Obtain the `id` from the `Id` field in [Get Member Profile](/api-reference/members/get-member-profile).
+Updates one or more profile fields for an existing member. Only the fields you include in the `data` object are changed — omitted fields are left unchanged. The internal `id` (not `RelationReference`) is required as the update key; obtain it from [Get Member Profile](/api-reference/members/get-member-profile) first. Custom attributes defined in your CPD schema can be updated the same way as standard fields.
 
 ## Authorization
 

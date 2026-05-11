@@ -4,7 +4,7 @@ description: Retrieve a member's aggregated points balance and loyalty statement
 openapi: "POST /lbms-ingress/transaction-lm/API/Transaction/GetMemberStatementSummary"
 ---
 
-The primary endpoint for a loyalty wallet or account summary screen. `ReturnObject.PointBalance` is the member's current redeemable balance.
+Returns a member's aggregated loyalty account summary — total points earned, redeemed, expired, and the current redeemable balance. This is the primary endpoint for a loyalty wallet or dashboard screen where you want to show a member their overall standing at a glance. `ReturnObject.PointBalance` is the live redeemable balance to use in redemption eligibility checks. For a line-by-line transaction history, use [Get Transaction Summary](/api-reference/transactions/get-transaction-summary).
 
 ## Authorization
 

@@ -4,7 +4,7 @@ description: Check the processing status of a transaction batch submitted via In
 openapi: "GET /lbms-ingress/transaction-lm/API/Transaction/PollTransactionBatchStatus"
 ---
 
-Poll until `summary.pending === 0` (or your SLA timeout) using exponential backoff.
+Checks the processing status of a transaction batch submitted via [Insert Transaction V2](/api-reference/transactions/insert-transaction-v2). Since V2 processing is asynchronous, your system must poll this endpoint until `summary.pending` reaches `0` to confirm all transactions have been evaluated. The response includes per-item outcomes so you can identify and handle any failures or holds individually. Use exponential backoff when polling to avoid rate limits.
 
 ## Authorization
 

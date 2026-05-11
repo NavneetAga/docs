@@ -4,6 +4,8 @@ description: Retrieve a paginated list of a member's loyalty transactions within
 openapi: "POST /lbms-ingress/transaction-lm/API/Transaction/GetMemberTransactionSummaryByDate"
 ---
 
+Returns a paginated list of a member's loyalty transactions within a specified date range, including points earned, redeemed, and the narration for each entry. Use this to power transaction history views in your loyalty portal or app. The `Count` field in the response gives the total matching records so you can calculate the number of pages. For an aggregated balance overview rather than individual transactions, use [Get Statement Summary](/api-reference/transactions/get-statement-summary).
+
 ## Authorization
 
 | Header | Value | Required |

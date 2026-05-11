@@ -4,9 +4,7 @@ description: Send an OTP to a member using their RelationReference (CID).
 openapi: "POST /lbms-ingress/member/api/Member/GenerateOTPByRelationReference"
 ---
 
-## When to Use
-
-Use this when the member's **RelationReference (CID)** is known — the preferred OTP flow. If you only know the email, use [Generate OTP](/api-reference/otp/generate-otp).
+Sends an OTP to a member identified by their `RelationReference` (CID). This is the preferred OTP trigger for member-facing portals where the CID is already established in your session — it avoids an extra lookup compared to the email-based flow. Loyalife routes the OTP to the member's registered channel based on their program configuration. Follow this call with [Verify OTP by Relation Reference](/api-reference/otp/verify-otp-by-relation) to complete verification.
 
 ## Authorization
 

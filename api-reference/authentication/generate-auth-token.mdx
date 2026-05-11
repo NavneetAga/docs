@@ -4,6 +4,8 @@ description: Exchange your client credentials for a JWT bearer token.
 openapi: "POST /lbms-ingress/oauth/api/Auth/Token"
 ---
 
+Loyalife uses OAuth 2.0 client credentials flow for API authentication. This endpoint exchanges your `client_id` and `client_secret` for a short-lived JWT bearer token. Every subsequent API call must include this token in the `Authorization` header — there is no session or cookie-based alternative. Tokens expire; cache the `tokenExpiresOn` timestamp and refresh proactively rather than waiting for a `401`.
+
 <Note>
   This is the first call you make. The token returned here must be included in the `Authorization` header of every subsequent API request.
 </Note>

@@ -4,6 +4,8 @@ description: Enroll a new member in your loyalty program.
 openapi: "POST /lbms-ingress/member/api/Member/CreateProfileWithAttributes"
 ---
 
+Registers a new member in your loyalty program. The `relation_reference` you supply becomes the member's permanent identifier across all Loyalife APIs — choose it carefully (typically an email-based UUID or your internal customer ID). New members are created in `Inactive` status by default; activation happens through a separate workflow. If a member with the same `relation_reference` already exists, the API returns a `409` rather than overwriting.
+
 ## Authorization
 
 | Header | Value | Required |

@@ -4,9 +4,7 @@ description: Send an OTP to a member's registered channel using their email addr
 openapi: "POST /lbms-ingress/member/api/Member/GenerateOTP"
 ---
 
-## When to Use
-
-Use this when the member's **email address** is known. If you have their `RelationReference` (CID) instead, use [Generate OTP by Relation Reference](/api-reference/otp/generate-otp-by-relation).
+Triggers an OTP to be sent to a member's registered delivery channel (SMS or email, as configured for your program), identified by their email address. Use this for login, password reset, account activation, or two-factor authentication flows. The `OtpType` parameter controls which template and expiry rules apply. If you have the member's `RelationReference` (CID) rather than their email, the preferred flow is [Generate OTP by Relation Reference](/api-reference/otp/generate-otp-by-relation).
 
 ## Authorization
 

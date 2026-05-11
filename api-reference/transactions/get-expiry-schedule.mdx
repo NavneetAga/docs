@@ -4,7 +4,7 @@ description: Retrieve the periodic points expiry schedule for a member.
 openapi: "POST /lbms-ingress/transaction-lm/API/Transaction/GetExpirySchedule"
 ---
 
-Use this to display upcoming points expiry — e.g. showing how many points expire each quarter. Useful for driving engagement and pre-expiry redemption campaigns.
+Returns the points expiry schedule for a member broken down by period (e.g. quarterly), showing how many points will expire at each upcoming date. Use this to surface expiry warnings in your loyalty portal — "X points expire on Dec 31" — which is one of the most effective nudges for driving redemption activity. The `Year` parameter lets you fetch future schedules for proactive campaign planning.
 
 ## Authorization
 

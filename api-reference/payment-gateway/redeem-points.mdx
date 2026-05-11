@@ -4,7 +4,7 @@ description: Deduct points from a member's balance to complete a redemption tran
 openapi: "POST /lbms-ingress/pg-lm/API/PG/RedeemPoints"
 ---
 
-Call this after [Check Availability](/api-reference/payment-gateway/check-availability) confirms sufficient balance.
+Deducts a specified number of points from a member's balance to fulfil a redemption — for a hotel booking, flight, gift card, or charitable donation. This call is irreversible on its own; if downstream fulfilment fails after points are deducted, you must call [Reversal Points](/api-reference/payment-gateway/reversal-points) to restore the balance. Always call [Check Availability](/api-reference/payment-gateway/check-availability) first to confirm sufficient balance, and store the `ExternalReference` UUID returned here immediately.
 
 <Warning>
   Save the `ExternalReference` UUID immediately. If downstream fulfillment fails, you'll need it to call [Reversal Points](/api-reference/payment-gateway/reversal-points) and restore the member's balance.

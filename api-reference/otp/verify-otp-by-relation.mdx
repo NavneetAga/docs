@@ -4,9 +4,7 @@ description: Validate a LOGIN OTP using the member's RelationReference.
 openapi: "POST /lbms-ingress/member/api/Member/VerifyOTPByRelationReference"
 ---
 
-## When to Use
-
-Step 2 of the OTP flow started by [Generate OTP by Relation Reference](/api-reference/otp/generate-otp-by-relation). The `OtpType` must match the value used in `GenerateOTPByRelationReference` — typically `LOGIN`.
+Completes the OTP verification for a member identified by their `RelationReference`. This is the second and final step of the CID-based OTP flow — call this after [Generate OTP by Relation Reference](/api-reference/otp/generate-otp-by-relation) has dispatched the code. The `OtpType` must match exactly what was used in the generate call; a mismatch will result in a failed verification even if the numeric code is correct.
 
 ## Authorization
 

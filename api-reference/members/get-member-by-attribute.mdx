@@ -4,9 +4,7 @@ description: Look up a member using a unique attribute such as email when Relati
 openapi: "GET /lbms-ingress/member/api/Member/GetMemberDetailsByUniqueAttribute"
 ---
 
-## When to Use
-
-Use this when you know a member's email or another unique field but don't have their `RelationReference`. The attribute must be part of your User schema in Loyalife Admin and marked as **unique**.
+Looks up a member using any unique profile attribute — such as `email_id` or `mobile_number` — when their `RelationReference` is not available. This is useful during customer support workflows or third-party integrations where only a known identifier like email is on hand. The attribute you search by must be defined in your Loyalife User schema and marked as unique; searching by non-unique fields is not supported.
 
 ## Authorization
 

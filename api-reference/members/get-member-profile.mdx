@@ -4,6 +4,8 @@ description: Retrieve complete profile details for a member by their RelationRef
 openapi: "GET /lbms-ingress/member/api/Member/GetMemberProfile"
 ---
 
+Returns the full profile for a member identified by their `RelationReference`. Use this to display member details, check tier status, or retrieve the internal `Id` required by [Update Profile](/api-reference/members/update-profile). If you only know the member's email or another unique attribute — not their `RelationReference` — use [Get Member by Attribute](/api-reference/members/get-member-by-attribute) instead.
+
 <Warning>
   Query parameters must be URL-encoded before sending. For example, `jane.doe@example.com` becomes `jane.doe%40example.com`.
 </Warning>

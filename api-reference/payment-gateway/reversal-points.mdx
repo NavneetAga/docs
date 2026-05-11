@@ -4,7 +4,7 @@ description: Reverse a redemption transaction and restore the member's points ba
 openapi: "POST /lbms-ingress/pg-lm/API/PG/ReversalPoints"
 ---
 
-Use when a redemption needs to be cancelled (e.g. booking error, gift card not issued). You must have the `ExternalReference` UUID from [Redeem Points](/api-reference/payment-gateway/redeem-points).
+Cancels a previously completed redemption and restores the member's points balance. Use this when fulfilment fails after points have already been deducted — for example, a hotel booking that couldn't be confirmed, or a gift card that was not issued. The `ExternalReference` UUID returned by [Redeem Points](/api-reference/payment-gateway/redeem-points) is required; without it the reversal cannot be linked to the original transaction. Reversals should be triggered as soon as a fulfilment failure is detected to minimise the time a member's balance is incorrectly reduced.
 
 ## Authorization
 
