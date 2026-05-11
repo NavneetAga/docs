@@ -4,10 +4,39 @@ description: Deduct points from a member's balance to complete a redemption tran
 openapi: "POST /lbms-ingress/pg-lm/API/PG/RedeemPoints"
 ---
 
-## When to Use
-
-Call this after [Check Availability](/api-reference/payment-gateway/check-availability) confirms the member has sufficient points. On success, the points are deducted and an `ExternalReference` UUID is returned.
+Call this after [Check Availability](/api-reference/payment-gateway/check-availability) confirms sufficient balance.
 
 <Warning>
-  Save the `ExternalReference` UUID immediately. If the downstream fulfillment fails, you'll need it to call [Reversal Points](/api-reference/payment-gateway/reversal-points) and restore the member's balance.
+  Save the `ExternalReference` UUID immediately. If downstream fulfillment fails, you'll need it to call [Reversal Points](/api-reference/payment-gateway/reversal-points) and restore the member's balance.
 </Warning>
+
+## Body Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `RelationReference` | string | Yes | The member's unique reference |
+| `Amount` | number | Yes | Monetary value equivalent of the redemption |
+| `Points` | integer | Yes | Number of points to deduct |
+| `MerchantName` | string | Yes | Merchant or redemption channel name (e.g. `Amazon`) |
+| `LoyaltyTxnType` | integer | Yes | Redemption category — see table below |
+| `TransactionCurrency` | string | Yes | Use `DEFAULT` |
+| `RelationType` | integer | Yes | Use `4` for customers |
+| `ProgramId` | integer | Yes | Your loyalty program ID |
+
+### LoyaltyTxnType Values
+
+| Value | Category |
+|---|---|
+| `5` | Hotel |
+| `6` | Air / Flight |
+| `19` | Charity |
+| `30` | Gift Card |
+
+## Response Schema
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `true` on success |
+| `results.ErrorCode` | string | `000` on success |
+| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.ReturnObject` | string (UUID) | **`ExternalReference` for this transaction. Store this for potential reversal.** |

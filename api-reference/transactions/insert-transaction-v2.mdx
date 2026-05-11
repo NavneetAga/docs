@@ -6,18 +6,48 @@ openapi: "POST /lbms-ingress/transaction-lm/API/Transaction/InsertTransactionDat
 
 ## When to Use
 
-Use this when you need to submit **multiple transactions** or want **asynchronous processing**. The API queues the transactions and returns a `batch_id` — use [Poll Batch Status](/api-reference/transactions/poll-batch-status) to check outcomes.
+Use for **batch or async** transaction submission. Returns a `batch_id` — poll with [Poll Batch Status](/api-reference/transactions/poll-batch-status) for outcomes. For a single synchronous transaction, use [Insert Transaction](/api-reference/transactions/insert-transaction).
 
-For a single synchronous transaction, use [Insert Transaction](/api-reference/transactions/insert-transaction).
+## Query Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `pintProgramId` | integer | Yes | Your loyalty program ID |
+
+## Body Parameters
+
+The request body is a **JSON array** of transaction objects.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `transaction_id` | string | No | Your transaction identifier |
+| `_xoxo_api_client_idempotency` | string | Recommended | Idempotency key. Reuse on retry; new value for a genuinely new submission. See [Idempotency](/concepts/idempotency). |
+| `amount` | number | Yes | Transaction amount |
+| `transaction_date` | string | Yes | Date in `YYYY-MM-DD` format |
+| `product_code` | string | Yes | Product identifier as configured in your program |
+| `member_relation_reference` | string | Yes | The member's `RelationReference` |
+| `transaction_type` | string | Yes | `dr` or `cr` as defined for your program |
+| `sub_product_code` | string | No | Sub-product or SKU code |
+
+## Response Schema
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `true` on success |
+| `results.ErrorCode` | string | `000` on success |
+| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.ReturnObject.batch_id` | string (UUID) | Identifies this batch. Pass to Poll Batch Status. |
+| `results.ReturnObject.message` | string | `Transactions queued successfully` |
+| `results.ReturnObject.total_transactions` | integer | Number of transactions accepted into the batch |
 
 ## What Happens Next
 
 <Steps>
   <Step title="Store the batch_id">
-    Save `ReturnObject.batch_id` in your system for polling.
+    Save `ReturnObject.batch_id` in your system.
   </Step>
   <Step title="Poll for completion">
-    Call [Poll Batch Status](/api-reference/transactions/poll-batch-status) with the `batch_id` until `pending` reaches `0` or your SLA timeout is reached.
+    Call [Poll Batch Status](/api-reference/transactions/poll-batch-status) until `summary.pending === 0` or your SLA timeout is reached.
   </Step>
   <Step title="Handle per-item outcomes">
     Each item resolves to `SUCCESS`, `FAILED`, `ON HOLD`, `PARTIAL HOLD`, or `PENDING`.

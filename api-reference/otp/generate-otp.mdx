@@ -1,13 +1,43 @@
 ---
 title: Generate OTP
-description: Send an OTP to a member's registered email or SMS channel using their email address.
+description: Send an OTP to a member's registered channel using their email address.
 openapi: "POST /lbms-ingress/member/api/Member/GenerateOTP"
 ---
 
 ## When to Use
 
-Use this when the member's **email address** is known (i.e. `UniquerefID` is an email). The OTP is sent to the member's registered channel based on your program configuration.
+Use this when the member's **email address** is known. If you have their `RelationReference` (CID) instead, use [Generate OTP by Relation Reference](/api-reference/otp/generate-otp-by-relation).
 
-If you know the member's `RelationReference` (CID) instead, use [Generate OTP by Relation Reference](/api-reference/otp/generate-otp-by-relation).
+## Body Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `UniquerefID` | string | Yes | The member's email address |
+| `SourceAddress` | string | Yes | IP address of the requesting system |
+| `SourceCode` | integer | Yes | Origin: `1`=Web, `2`=Mobile, `3`=Email, `4`=Service |
+| `OtpType` | string | Yes | Purpose of the OTP — see values below |
+| `ProgramId` | integer | Yes | Your loyalty program ID |
+| `RelationType` | integer | Yes | Use `4` for customers |
+
+### OtpType Values
+
+| Value | Use Case |
+|---|---|
+| `LOGIN` | Member login |
+| `FORGOTPWD` | Password reset |
+| `ACTIVATION` | Account activation |
+| `CHANGEPASSWORD` | Change password |
+| `RESETPASSWORD` | Reset password |
+| `TwoFA` | Two-factor authentication |
+
+## Response Schema
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `true` on success |
+| `results.ErrorCode` | string | `000` on success |
+| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.ReturnObject` | boolean | `true` when OTP is sent |
+| `results.Count` | integer | Always `0` |
 
 After a successful response, verify the OTP with [Verify OTP](/api-reference/otp/verify-otp).

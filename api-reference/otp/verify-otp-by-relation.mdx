@@ -6,6 +6,25 @@ openapi: "POST /lbms-ingress/member/api/Member/VerifyOTPByRelationReference"
 
 ## When to Use
 
-This is step 2 of the OTP login flow initiated by [Generate OTP by Relation Reference](/api-reference/otp/generate-otp-by-relation). Use it when `UniquerefID` is the member's **RelationReference (CID)**.
+Step 2 of the OTP flow started by [Generate OTP by Relation Reference](/api-reference/otp/generate-otp-by-relation). Use when `UniquerefID` is the member's **RelationReference (CID)**. The `OtpType` must match the value used in `GenerateOTPByRelationReference` — typically `LOGIN`.
 
-The `OtpType` must match the value used in `GenerateOTPByRelationReference` — typically `LOGIN`.
+## Body Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `UniquerefID` | string | Yes | The member's `RelationReference` (CID) |
+| `OTP` | integer | Yes | The OTP entered by the member |
+| `DestinationAddress` | string | Yes | IP address of the client device |
+| `Destination` | string | Yes | `Web` or `Mobile` |
+| `OtpType` | string | Yes | Must match the `OtpType` from `GenerateOTPByRelationReference` |
+| `ProgramId` | integer | Yes | Your loyalty program ID |
+| `RelationType` | integer | Yes | Use `4` for customers |
+
+## Response Schema
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `true` on success |
+| `results.ErrorCode` | string | `000` on success |
+| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.ReturnObject` | boolean | `true` on successful verification |

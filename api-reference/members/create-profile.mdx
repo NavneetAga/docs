@@ -4,6 +4,34 @@ description: Enroll a new member in your loyalty program.
 openapi: "POST /lbms-ingress/member/api/Member/CreateProfileWithAttributes"
 ---
 
+## Query Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `pintProgramId` | integer | Yes | Your loyalty program ID |
+
+## Body Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `relation_reference` | string | Yes | Unique member identifier — typically email-based. Primary key across all APIs. |
+| `full_name` | string | Yes | Member's full name |
+| `email_id` | string | Yes | Member's email address |
+| `mobile_number` | string | Yes | Member's mobile number |
+| `status` | string | Yes | Member status code. Use `5` for Inactive (standard initial state). |
+| `address` | string | No | Member's address |
+| `gender` | string | No | `M`, `F`, or `O` |
+| `dob` | string | No | Date of birth in `YYYY-MM-DD` format |
+
 <Note>
-  Any mandatory custom attributes defined in your CPD schema must also be included. Optional custom attributes defined in your schema can also be passed alongside the standard fields above.
+  Any mandatory custom attributes defined in your CPD schema must also be included. Optional custom attributes can also be passed.
 </Note>
+
+## Response Schema
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `true` on success |
+| `results.ErrorCode` | string | `000` on success, error code otherwise |
+| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.ReturnObject` | boolean | `true` on successful enrollment |

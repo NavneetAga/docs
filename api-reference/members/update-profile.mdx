@@ -4,8 +4,35 @@ description: Update an existing member's profile attributes.
 openapi: "POST /lbms-ingress/member/api/Member/UpdateProfileWithAttributes"
 ---
 
+Obtain the `id` from the `Id` field in [Get Member Profile](/api-reference/members/get-member-profile).
+
+## Query Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `pintProgramId` | integer | Yes | Your loyalty program ID |
+
+## Body Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `id` | integer | Yes | Internal member ID from Get Member Profile response |
+| `data.email_id` | string | No | Updated email address |
+| `data.full_name` | string | No | Updated full name |
+| `data.gender` | string | No | `M`, `F`, or `O` |
+| `data.dob` | string | No | Updated date of birth in `YYYY-MM-DD` |
+| `data.mobile_number` | string | No | Updated mobile number |
+| `data.address` | string | No | Updated address |
+
 <Note>
-  At least one `data.*` attribute must be present in the payload. Custom attributes defined in your CPD schema can also be included under `data`.
+  At least one `data.*` field must be present. Custom attributes from your CPD schema can also be included under `data`.
 </Note>
 
-Obtain the `id` from the `Id` field returned by [Get Member Profile](/api-reference/members/get-member-profile).
+## Response Schema
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `true` on success |
+| `results.ErrorCode` | string | `000` on success |
+| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.ReturnObject` | boolean | `true` on successful update |

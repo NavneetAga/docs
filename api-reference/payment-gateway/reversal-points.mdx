@@ -4,11 +4,25 @@ description: Reverse a redemption transaction and restore the member's points ba
 openapi: "POST /lbms-ingress/pg-lm/API/PG/ReversalPoints"
 ---
 
-## When to Use
+Use when a redemption needs to be cancelled — for example, a booking error or gift card not issued. You must have the `ExternalReference` UUID from [Redeem Points](/api-reference/payment-gateway/redeem-points).
 
-Use this when a redemption needs to be cancelled — for example, if the downstream fulfillment failed (booking error, gift card not issued, etc.). The deducted points are restored to the member's balance.
+## Body Parameters
 
-You must have the `ExternalReference` UUID returned by [Redeem Points](/api-reference/payment-gateway/redeem-points).
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `RelationReference` | string | Yes | Must match the value used in the original `RedeemPoints` call |
+| `MerchantName` | string | Yes | Must match the value used in the original `RedeemPoints` call |
+| `ExternalReference` | string (UUID) | Yes | The UUID returned by `RedeemPoints` |
+| `ProgramId` | integer | Yes | Your loyalty program ID |
+
+## Response Schema
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `true` on success |
+| `results.ErrorCode` | string | `000` on success |
+| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.ReturnObject` | boolean | `true` when reversal is complete and points are restored |
 
 ## Redemption Flow
 

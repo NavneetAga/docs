@@ -4,8 +4,28 @@ description: Retrieve a member's aggregated points balance and loyalty statement
 openapi: "POST /lbms-ingress/transaction-lm/API/Transaction/GetMemberStatementSummary"
 ---
 
-## When to Use
+The primary endpoint for a loyalty wallet or account summary screen. `ReturnObject.PointBalance` is the member's current redeemable balance.
 
-Use this to display a member's **current points balance** and breakdown by category (earned, redeemed, expired, etc.). This is the primary endpoint for a loyalty wallet or account summary screen.
+## Body Parameters
 
-`PointBalance` is the member's current redeemable balance.
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `RelationReference` | string | Yes | The member's unique reference |
+| `TransactionCurrency` | string | Yes | Use `DEFAULT` or your program's currency code |
+| `RelationType` | integer | Yes | Use `4` for customers |
+| `ProgramId` | integer | Yes | Your loyalty program ID |
+
+## Response Schema
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `true` on success |
+| `results.ErrorCode` | string | `000` on success |
+| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.ReturnObject.PointBalance` | integer | **Current redeemable points balance** |
+| `results.ReturnObject.Bonus` | integer | Total bonus points earned |
+| `results.ReturnObject.Spend` | integer | Total points earned through purchases |
+| `results.ReturnObject.Redeem` | integer | Total points redeemed |
+| `results.ReturnObject.Partner` | integer | Points earned through partner transactions |
+| `results.ReturnObject.Purchased` | integer | Points purchased |
+| `results.ReturnObject.ExpiredPoints` | integer | Total points that have expired |

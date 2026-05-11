@@ -4,22 +4,42 @@ description: Check the processing status of a transaction batch submitted via In
 openapi: "GET /lbms-ingress/transaction-lm/API/Transaction/PollTransactionBatchStatus"
 ---
 
-## When to Use
+Poll until `summary.pending === 0` (or your SLA timeout is reached) using exponential backoff.
 
-After submitting a batch with [Insert Transaction V2](/api-reference/transactions/insert-transaction-v2), poll this endpoint to retrieve the aggregate summary and per-transaction outcomes.
+## Query Parameters
 
-**Poll until `summary.pending === 0`** (or your SLA timeout is reached), using exponential backoff between polls.
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `pintProgramId` | integer | Yes | Your loyalty program ID |
+| `batch_id` | string (UUID) | Yes | The UUID returned by `InsertTransactionDataV2` |
+
+## Response Schema
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `true` on success |
+| `results.ReturnObject.batch_id` | string | The batch UUID |
+| `results.ReturnObject.summary.total` | integer | Total transactions in batch |
+| `results.ReturnObject.summary.success` | integer | Successfully processed count |
+| `results.ReturnObject.summary.failed` | integer | Failed count |
+| `results.ReturnObject.summary.pending` | integer | Still processing — keep polling while `> 0` |
+| `results.ReturnObject.summary.on_hold` | integer | Transactions held for review |
+| `results.ReturnObject.summary.partial_hold` | integer | Partially awarded, remainder on hold |
+| `results.ReturnObject.results[].request_id` | string | Per-transaction reference |
+| `results.ReturnObject.results[].status` | string | `SUCCESS` \| `FAILED` \| `ON HOLD` \| `PARTIAL HOLD` \| `PENDING` |
+| `results.ReturnObject.results[].points` | integer | Points awarded (on SUCCESS or PARTIAL HOLD) |
+| `results.ReturnObject.results[].error` | string | Error reason (on FAILED) |
 
 ## Per-Item Status Values
 
 | Status | Meaning |
 |---|---|
-| `SUCCESS` | Processed successfully. `points` shows awarded points. |
-| `FAILED` | Processing failed. `error` contains the reason. Contact support with `request_id`. |
-| `ON HOLD` | Transaction held — Points Hold is enabled or Anomaly Detection triggered. No points until reviewed. |
-| `PARTIAL HOLD` | Some rewards awarded; remaining held for review. |
-| `PENDING` | Still processing. Continue polling with backoff. |
+| `SUCCESS` | Processed. `points` shows awarded amount. |
+| `FAILED` | Processing failed. `error` contains the reason. |
+| `ON HOLD` | Points Hold or Anomaly Detection triggered. No points until reviewed. |
+| `PARTIAL HOLD` | Some points awarded; remainder on hold. |
+| `PENDING` | Still processing. Continue polling. |
 
 <Warning>
-  Keep polling until `summary.pending === 0`. Items in `PENDING` state are not yet finalized — their outcome may change.
+  Keep polling until `summary.pending === 0`. Items in `PENDING` state are not yet finalized.
 </Warning>

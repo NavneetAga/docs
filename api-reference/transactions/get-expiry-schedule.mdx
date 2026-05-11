@@ -4,6 +4,26 @@ description: Retrieve the periodic points expiry schedule for a member.
 openapi: "POST /lbms-ingress/transaction-lm/API/Transaction/GetExpirySchedule"
 ---
 
-## When to Use
+Use this to display upcoming points expiry information — e.g. showing how many points expire each quarter. Useful for driving engagement and pre-expiry redemption campaigns.
 
-Use this to display upcoming points expiry information — for example, showing how many points expire each quarter. Useful for driving engagement and pre-expiry redemption campaigns.
+## Body Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `RelationReference` | string | Yes | The member's unique reference |
+| `RelationType` | integer | Yes | Use `4` for customers |
+| `ProgramId` | integer | Yes | Your loyalty program ID |
+| `TransactionCurrency` | string | Yes | Use `DEFAULT` |
+| `Year` | integer | Yes | Year for the expiry schedule (e.g. `2026`) |
+
+## Response Schema
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `true` on success |
+| `results.ReturnObject.Period` | string | Expiry period type (e.g. `Quarterly`) |
+| `results.ReturnObject.ExpiryPeriod[].ScheduleDate` | string | Date when this batch of points expires |
+| `results.ReturnObject.ExpiryPeriod[].AccrualPoints` | integer | Points accrued in this period |
+| `results.ReturnObject.ExpiryPeriod[].RedeemPoints` | integer | Points redeemed in this period |
+| `results.ReturnObject.ExpiryPeriod[].BlockedPoints` | integer | Points currently blocked |
+| `results.ReturnObject.ExpiryPeriod[].TotalAvailablePoints` | integer | Points still available (accrual minus redeemed and blocked) |

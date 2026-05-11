@@ -8,8 +8,23 @@ openapi: "POST /lbms-ingress/oauth/api/Auth/Token"
   This is the first call you make. The token returned here must be included in the `Authorization` header of every subsequent API request.
 </Note>
 
+## Body Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `grant_type` | string | Yes | Must be `client_credentials` |
+| `client_id` | string | Yes | OAuth client ID from Loyalife Admin → Program Configuration → API |
+| `client_secret` | string | Yes | OAuth client secret. Never expose in client-side code. |
+| `scope` | string | No | Binds the token to a specific member. JSON-encoded array: `["LOGIN","{RelationReference}"]`. Omit for a general-purpose program token. |
+
+## Response Schema
+
+| Path | Type | Description |
+|---|---|---|
+| `results.token` | string | JWT bearer token. Use as `Authorization: bearer {token}` in all subsequent calls. |
+| `results.tokenExpiresOn` | string | ISO 8601 expiry timestamp. Refresh before this time. |
+
 ## Usage Notes
 
 - Cache the token until `tokenExpiresOn`. Don't generate a new token per request.
 - On receiving a `401` from any API, refresh the token and retry once.
-- For member-scoped tokens, pass `scope` as a JSON-encoded array: `["LOGIN", "{RelationReference}"]`. Omit for a general-purpose program token.

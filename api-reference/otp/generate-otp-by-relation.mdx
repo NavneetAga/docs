@@ -6,8 +6,27 @@ openapi: "POST /lbms-ingress/member/api/Member/GenerateOTPByRelationReference"
 
 ## When to Use
 
-Use this when the member's **RelationReference (CID)** is known. This is the preferred flow for OTP-based login when the member identifier is already available in your system.
+Use this when the member's **RelationReference (CID)** is known — the preferred OTP flow when the member identifier is already available in your system. If you only know the email, use [Generate OTP](/api-reference/otp/generate-otp).
 
-If you only know the member's email, use [Generate OTP](/api-reference/otp/generate-otp) instead.
+## Body Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `UniquerefID` | string | Yes | The member's `RelationReference` (CID) |
+| `SourceCode` | integer | Yes | Origin: `1`=Web, `2`=Mobile, `3`=Email, `4`=Service |
+| `SourceAddress` | string | Yes | IP address of the requesting system |
+| `OtpType` | string | Yes | Purpose of the OTP — see [Generate OTP](/api-reference/otp/generate-otp) for values |
+| `ProgramId` | integer | Yes | Your loyalty program ID |
+| `RelationType` | integer | Yes | Use `4` for customers |
+
+## Response Schema
+
+| Path | Type | Description |
+|---|---|---|
+| `results.IsSucessful` | boolean | `true` on success |
+| `results.ErrorCode` | string | `000` on success |
+| `results.ExceptionMessage` | string | `Success` or error description |
+| `results.ReturnObject` | boolean | `true` when OTP is sent |
+| `results.Count` | integer | Always `0` |
 
 Verify the OTP using [Verify OTP by Relation Reference](/api-reference/otp/verify-otp-by-relation).
