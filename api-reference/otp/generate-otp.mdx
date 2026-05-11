@@ -39,14 +39,16 @@ Use this when the member's **email address** is known. If you have their `Relati
 
 ## Responses
 
-### 200 — Success
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `true` |
-| `results.ErrorCode` | string | `000` |
-| `results.ExceptionMessage` | string | `Success` |
-| `results.ReturnObject` | boolean | `true` when OTP is sent |
-| `results.Count` | integer | Always `0` |
+<AccordionGroup>
+  <Accordion title="200 — Success">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `true` |
+    | `results.ErrorCode` | string | `000` |
+    | `results.ExceptionMessage` | string | `Success` |
+    | `results.ReturnObject` | boolean | `true` when OTP is sent |
+    | `results.Count` | integer | Always `0` |
+  </Accordion>
+</AccordionGroup>
 
 After a successful response, verify the OTP with [Verify OTP](/api-reference/otp/verify-otp).

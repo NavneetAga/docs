@@ -38,16 +38,18 @@ The request body is a **JSON array** of transaction objects.
 
 ## Responses
 
-### 202 — Accepted
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `true` |
-| `results.ErrorCode` | string | `000` |
-| `results.ExceptionMessage` | string | `Success` |
-| `results.ReturnObject.batch_id` | string (UUID) | Identifies this batch. Pass to [Poll Batch Status](/api-reference/transactions/poll-batch-status). |
-| `results.ReturnObject.message` | string | `Transactions queued successfully` |
-| `results.ReturnObject.total_transactions` | integer | Number of transactions accepted |
+<AccordionGroup>
+  <Accordion title="202 — Accepted">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `true` |
+    | `results.ErrorCode` | string | `000` |
+    | `results.ExceptionMessage` | string | `Success` |
+    | `results.ReturnObject.batch_id` | string (UUID) | Identifies this batch. Pass to [Poll Batch Status](/api-reference/transactions/poll-batch-status). |
+    | `results.ReturnObject.message` | string | `Transactions queued successfully` |
+    | `results.ReturnObject.total_transactions` | integer | Number of transactions accepted |
+  </Accordion>
+</AccordionGroup>
 
 ## What Happens Next
 

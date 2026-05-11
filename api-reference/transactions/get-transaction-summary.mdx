@@ -26,19 +26,21 @@ openapi: "POST /lbms-ingress/transaction-lm/API/Transaction/GetMemberTransaction
 
 ## Responses
 
-### 200 — Success
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `true` |
-| `results.Count` | integer | Total matching records — use for pagination |
-| `results.ReturnObject[].Id` | integer | Internal transaction ID |
-| `results.ReturnObject[].Points` | integer | Points earned or redeemed |
-| `results.ReturnObject[].Narration` | string | Human-readable description (e.g. `Referral Bonus`) |
-| `results.ReturnObject[].TransactionDate` | string | Transaction timestamp |
-| `results.ReturnObject[].ExpiryDate` | string | When the awarded points expire |
-| `results.ReturnObject[].ExternalReference` | string (UUID) | External reference for this transaction |
-| `results.ReturnObject[].LoyaltyTxnType` | integer | `1`=Spend, `2`=Earn/Bonus |
+<AccordionGroup>
+  <Accordion title="200 — Success">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `true` |
+    | `results.Count` | integer | Total matching records — use for pagination |
+    | `results.ReturnObject[].Id` | integer | Internal transaction ID |
+    | `results.ReturnObject[].Points` | integer | Points earned or redeemed |
+    | `results.ReturnObject[].Narration` | string | Human-readable description (e.g. `Referral Bonus`) |
+    | `results.ReturnObject[].TransactionDate` | string | Transaction timestamp |
+    | `results.ReturnObject[].ExpiryDate` | string | When the awarded points expire |
+    | `results.ReturnObject[].ExternalReference` | string (UUID) | External reference for this transaction |
+    | `results.ReturnObject[].LoyaltyTxnType` | integer | `1`=Spend, `2`=Earn/Bonus |
+  </Accordion>
+</AccordionGroup>
 
 ## Pagination
 

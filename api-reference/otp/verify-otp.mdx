@@ -29,19 +29,20 @@ Step 2 of the OTP flow started by [Generate OTP](/api-reference/otp/generate-otp
 
 ## Responses
 
-### 200 — Success
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `true` |
-| `results.ErrorCode` | string | `000` |
-| `results.ExceptionMessage` | string | `Success` |
-| `results.ReturnObject` | boolean | `true` on successful verification |
-
-### 400 — Invalid OTP
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `false` |
-| `results.ErrorCode` | string | `E400` |
-| `results.ExceptionMessage` | string | `Invalid or expired OTP` |
+<AccordionGroup>
+  <Accordion title="200 — Success">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `true` |
+    | `results.ErrorCode` | string | `000` |
+    | `results.ExceptionMessage` | string | `Success` |
+    | `results.ReturnObject` | boolean | `true` on successful verification |
+  </Accordion>
+  <Accordion title="400 — Invalid OTP">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `false` |
+    | `results.ErrorCode` | string | `E400` |
+    | `results.ExceptionMessage` | string | `Invalid or expired OTP` |
+  </Accordion>
+</AccordionGroup>

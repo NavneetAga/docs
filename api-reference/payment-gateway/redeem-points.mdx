@@ -41,11 +41,13 @@ Call this after [Check Availability](/api-reference/payment-gateway/check-availa
 
 ## Responses
 
-### 200 — Success
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `true` |
-| `results.ErrorCode` | string | `000` |
-| `results.ExceptionMessage` | string | `Success` |
-| `results.ReturnObject` | string (UUID) | **`ExternalReference` for this transaction. Store for potential reversal.** |
+<AccordionGroup>
+  <Accordion title="200 — Success">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `true` |
+    | `results.ErrorCode` | string | `000` |
+    | `results.ExceptionMessage` | string | `Success` |
+    | `results.ReturnObject` | string (UUID) | **`ExternalReference` for this transaction. Store for potential reversal.** |
+  </Accordion>
+</AccordionGroup>

@@ -1,6 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
+  "layout": "topnav",
   "name": "Loyalife API",
   "colors": {
     "primary": "#E0173D",

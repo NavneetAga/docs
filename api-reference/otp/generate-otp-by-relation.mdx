@@ -28,14 +28,16 @@ Use this when the member's **RelationReference (CID)** is known — the preferre
 
 ## Responses
 
-### 200 — Success
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `true` |
-| `results.ErrorCode` | string | `000` |
-| `results.ExceptionMessage` | string | `Success` |
-| `results.ReturnObject` | boolean | `true` when OTP is sent |
-| `results.Count` | integer | Always `0` |
+<AccordionGroup>
+  <Accordion title="200 — Success">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `true` |
+    | `results.ErrorCode` | string | `000` |
+    | `results.ExceptionMessage` | string | `Success` |
+    | `results.ReturnObject` | boolean | `true` when OTP is sent |
+    | `results.Count` | integer | Always `0` |
+  </Accordion>
+</AccordionGroup>
 
 Verify the OTP using [Verify OTP by Relation Reference](/api-reference/otp/verify-otp-by-relation).

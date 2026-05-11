@@ -24,14 +24,16 @@ Always call this **before** [Redeem Points](/api-reference/payment-gateway/redee
 
 ## Responses
 
-### 200 — Success
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `true` |
-| `results.ErrorCode` | string | `000` |
-| `results.ExceptionMessage` | string | `Success` |
-| `results.ReturnObject` | integer | **The member's current redeemable points balance** |
+<AccordionGroup>
+  <Accordion title="200 — Success">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `true` |
+    | `results.ErrorCode` | string | `000` |
+    | `results.ExceptionMessage` | string | `Success` |
+    | `results.ReturnObject` | integer | **The member's current redeemable points balance** |
+  </Accordion>
+</AccordionGroup>
 
 ## Typical Flow
 

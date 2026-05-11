@@ -26,20 +26,21 @@ openapi: "POST /lbms-ingress/oauth/api/Auth/Token"
 
 ## Responses
 
-### 200 — Success
-
-| Path | Type | Description |
-|---|---|---|
-| `results.token` | string | JWT bearer token. Use as `Authorization: bearer {token}` in all subsequent calls. |
-| `results.tokenExpiresOn` | string (date-time) | ISO 8601 expiry timestamp. Refresh before this time. |
-
-### 401 — Invalid Credentials
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `false` |
-| `results.ErrorCode` | string | `E401` |
-| `results.ExceptionMessage` | string | `Invalid client credentials` |
+<AccordionGroup>
+  <Accordion title="200 — Success">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.token` | string | JWT bearer token. Use as `Authorization: bearer {token}` in all subsequent calls. |
+    | `results.tokenExpiresOn` | string (date-time) | ISO 8601 expiry timestamp. Refresh before this time. |
+  </Accordion>
+  <Accordion title="401 — Invalid Credentials">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `false` |
+    | `results.ErrorCode` | string | `E401` |
+    | `results.ExceptionMessage` | string | `Invalid client credentials` |
+  </Accordion>
+</AccordionGroup>
 
 ## Usage Notes
 

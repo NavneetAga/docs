@@ -25,15 +25,17 @@ Use this to display upcoming points expiry — e.g. showing how many points expi
 
 ## Responses
 
-### 200 — Success
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `true` |
-| `results.ErrorCode` | string | `000` |
-| `results.ReturnObject.Period` | string | Expiry period type (e.g. `Quarterly`) |
-| `results.ReturnObject.ExpiryPeriod[].ScheduleDate` | string | Date when this batch of points expires |
-| `results.ReturnObject.ExpiryPeriod[].AccrualPoints` | integer | Points accrued in this period |
-| `results.ReturnObject.ExpiryPeriod[].RedeemPoints` | integer | Points redeemed in this period |
-| `results.ReturnObject.ExpiryPeriod[].BlockedPoints` | integer | Points currently blocked |
-| `results.ReturnObject.ExpiryPeriod[].TotalAvailablePoints` | integer | Points still available (accrual minus redeemed and blocked) |
+<AccordionGroup>
+  <Accordion title="200 — Success">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `true` |
+    | `results.ErrorCode` | string | `000` |
+    | `results.ReturnObject.Period` | string | Expiry period type (e.g. `Quarterly`) |
+    | `results.ReturnObject.ExpiryPeriod[].ScheduleDate` | string | Date when this batch of points expires |
+    | `results.ReturnObject.ExpiryPeriod[].AccrualPoints` | integer | Points accrued in this period |
+    | `results.ReturnObject.ExpiryPeriod[].RedeemPoints` | integer | Points redeemed in this period |
+    | `results.ReturnObject.ExpiryPeriod[].BlockedPoints` | integer | Points currently blocked |
+    | `results.ReturnObject.ExpiryPeriod[].TotalAvailablePoints` | integer | Points still available (accrual minus redeemed and blocked) |
+  </Accordion>
+</AccordionGroup>

@@ -36,19 +36,20 @@ openapi: "POST /lbms-ingress/member/api/Member/CreateProfileWithAttributes"
 
 ## Responses
 
-### 200 — Success
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `true` |
-| `results.ErrorCode` | string | `000` |
-| `results.ExceptionMessage` | string | `Success` |
-| `results.ReturnObject` | boolean | `true` on successful enrollment |
-
-### 409 — Member Already Exists
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `false` |
-| `results.ErrorCode` | string | `E409` |
-| `results.ExceptionMessage` | string | `Member already exists` |
+<AccordionGroup>
+  <Accordion title="200 — Success">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `true` |
+    | `results.ErrorCode` | string | `000` |
+    | `results.ExceptionMessage` | string | `Success` |
+    | `results.ReturnObject` | boolean | `true` on successful enrollment |
+  </Accordion>
+  <Accordion title="409 — Member Already Exists">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `false` |
+    | `results.ErrorCode` | string | `E409` |
+    | `results.ExceptionMessage` | string | `Member already exists` |
+  </Accordion>
+</AccordionGroup>

@@ -24,24 +24,25 @@ openapi: "GET /lbms-ingress/member/api/Member/GetMemberProfile"
 
 ## Responses
 
-### 200 — Success
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `true` |
-| `results.ErrorCode` | string | `000` |
-| `results.ReturnObject.Id` | integer | Internal member ID — required for Update Profile |
-| `results.ReturnObject.FullName` | string | Member's full name |
-| `results.ReturnObject.Email` | string | Member's email |
-| `results.ReturnObject.MobileNumber` | string | Member's mobile number |
-| `results.ReturnObject.Status` | string | Member status (e.g. `Active`) |
-| `results.ReturnObject.TierName` | string | Current loyalty tier (e.g. Silver, Gold, Platinum) |
-| `results.ReturnObject.TotalPoints` | integer | Total points balance |
-
-### 404 — Not Found
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `false` |
-| `results.ErrorCode` | string | Error code |
-| `results.ExceptionMessage` | string | Error description |
+<AccordionGroup>
+  <Accordion title="200 — Success">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `true` |
+    | `results.ErrorCode` | string | `000` |
+    | `results.ReturnObject.Id` | integer | Internal member ID — required for Update Profile |
+    | `results.ReturnObject.FullName` | string | Member's full name |
+    | `results.ReturnObject.Email` | string | Member's email |
+    | `results.ReturnObject.MobileNumber` | string | Member's mobile number |
+    | `results.ReturnObject.Status` | string | Member status (e.g. `Active`) |
+    | `results.ReturnObject.TierName` | string | Current loyalty tier (e.g. Silver, Gold, Platinum) |
+    | `results.ReturnObject.TotalPoints` | integer | Total points balance |
+  </Accordion>
+  <Accordion title="404 — Not Found">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `false` |
+    | `results.ErrorCode` | string | Error code |
+    | `results.ExceptionMessage` | string | Error description |
+  </Accordion>
+</AccordionGroup>

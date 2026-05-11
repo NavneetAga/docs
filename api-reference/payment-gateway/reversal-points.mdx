@@ -24,14 +24,16 @@ Use when a redemption needs to be cancelled (e.g. booking error, gift card not i
 
 ## Responses
 
-### 200 — Success
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `true` |
-| `results.ErrorCode` | string | `000` |
-| `results.ExceptionMessage` | string | `Success` |
-| `results.ReturnObject` | boolean | `true` when reversal is complete and points are restored |
+<AccordionGroup>
+  <Accordion title="200 — Success">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `true` |
+    | `results.ErrorCode` | string | `000` |
+    | `results.ExceptionMessage` | string | `Success` |
+    | `results.ReturnObject` | boolean | `true` when reversal is complete and points are restored |
+  </Accordion>
+</AccordionGroup>
 
 ## Redemption Flow
 

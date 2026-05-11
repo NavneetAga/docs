@@ -39,19 +39,20 @@ Use for **synchronous** single-transaction submission — processed immediately 
 
 ## Responses
 
-### 200 — Success
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `true` |
-| `results.ErrorCode` | string | `000` |
-| `results.ExceptionMessage` | string | `Success` |
-| `results.ReturnObject` | boolean | `true` on successful submission |
-
-### 400 — Invalid Request
-
-| Path | Type | Description |
-|---|---|---|
-| `results.IsSucessful` | boolean | `false` |
-| `results.ErrorCode` | string | `E400` |
-| `results.ExceptionMessage` | string | e.g. `Invalid product code` |
+<AccordionGroup>
+  <Accordion title="200 — Success">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `true` |
+    | `results.ErrorCode` | string | `000` |
+    | `results.ExceptionMessage` | string | `Success` |
+    | `results.ReturnObject` | boolean | `true` on successful submission |
+  </Accordion>
+  <Accordion title="400 — Invalid Request">
+    | Path | Type | Description |
+    |---|---|---|
+    | `results.IsSucessful` | boolean | `false` |
+    | `results.ErrorCode` | string | `E400` |
+    | `results.ExceptionMessage` | string | e.g. `Invalid product code` |
+  </Accordion>
+</AccordionGroup>
