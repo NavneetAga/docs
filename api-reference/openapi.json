@@ -1,94 +1,190 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+    "title": "Loyalife LBMS API",
+    "description": "REST API for Loyalife's Loyalty Management System. Covers member management, OTP authentication, loyalty transactions, and points redemption.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Xoxoday Support",
+      "email": "support@xoxoday.com"
+    }
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://loyalife-api.xoxoday.in",
+      "description": "Production"
     }
   ],
   "security": [
-    {
-      "bearerAuth": []
-    }
+    { "bearerAuth": [] }
   ],
-  "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT obtained from Generate Auth Token. Pass as `Authorization: bearer {token}`."
+      }
+    },
+    "parameters": {
+      "pintProgramId": {
+        "name": "pintProgramId",
+        "in": "query",
+        "required": true,
+        "description": "Your loyalty program ID",
+        "schema": { "type": "integer", "example": 19 }
+      }
+    },
+    "schemas": {
+      "StandardError": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "object",
+            "properties": {
+              "IsSucessful": { "type": "boolean", "example": false },
+              "ErrorCode": { "type": "string", "example": "E400" },
+              "ExceptionMessage": { "type": "string", "example": "Error description" }
             }
           }
-        ],
+        }
+      },
+      "MemberProfile": {
+        "type": "object",
+        "properties": {
+          "Id": { "type": "integer", "description": "Internal member ID — required for UpdateProfileWithAttributes", "example": 12345 },
+          "FullName": { "type": "string", "example": "Jane Doe" },
+          "Email": { "type": "string", "format": "email", "example": "jane.doe@example.com" },
+          "MobileNumber": { "type": "string", "example": "+919876543210" },
+          "Status": { "type": "string", "example": "Active" },
+          "TierName": { "type": "string", "description": "Current loyalty tier (e.g. Silver, Gold, Platinum)", "example": "Silver" },
+          "TotalPoints": { "type": "integer", "example": 1500 },
+          "RelationReference": { "type": "string", "example": "jane.doe@example.com" }
+        }
+      },
+      "OtpType": {
+        "type": "string",
+        "enum": ["LOGIN", "FORGOTPWD", "ACTIVATION", "CHANGEPASSWORD", "RESETPASSWORD", "TwoFA", "REGISTRATION", "PROFILEUPDATE"],
+        "example": "LOGIN"
+      },
+      "TransactionItem": {
+        "type": "object",
+        "required": ["amount", "transaction_date", "product_code", "member_relation_reference", "transaction_type"],
+        "properties": {
+          "transaction_id": { "type": "string", "example": "TXN-2026-001" },
+          "_xoxo_api_client_idempotency": {
+            "type": "string",
+            "description": "Idempotency key for safe retries. Reuse on retry; new value for genuinely new submissions.",
+            "example": "order-inv-2026-001"
+          },
+          "amount": { "type": "number", "example": 1500 },
+          "transaction_date": { "type": "string", "format": "date", "example": "2026-05-11" },
+          "product_code": { "type": "string", "example": "RETAIL001" },
+          "sub_product_code": { "type": "string", "example": "ELECTRONICS" },
+          "member_relation_reference": { "type": "string", "example": "jane.doe@example.com" },
+          "transaction_type": {
+            "type": "string",
+            "description": "DR for purchase/earn, CR for reversal",
+            "example": "dr"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/lbms-ingress/oauth/api/Auth/Token": {
+      "post": {
+        "summary": "Generate Auth Token",
+        "description": "Exchange client credentials for a JWT bearer token. Include the returned token in the `Authorization: bearer {token}` header of all subsequent API requests.",
+        "operationId": "generateAuthToken",
+        "tags": ["Authentication"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["grant_type", "client_id", "client_secret"],
+                "properties": {
+                  "grant_type": {
+                    "type": "string",
+                    "enum": ["client_credentials"],
+                    "description": "OAuth 2.0 grant type",
+                    "example": "client_credentials"
+                  },
+                  "client_id": {
+                    "type": "string",
+                    "description": "Your OAuth client ID from Loyalife Admin → Program Configuration → API",
+                    "example": "your-client-id"
+                  },
+                  "client_secret": {
+                    "type": "string",
+                    "description": "Your OAuth client secret. Never expose in client-side code.",
+                    "example": "your-client-secret"
+                  },
+                  "scope": {
+                    "type": "string",
+                    "description": "Optional. Binds token to a specific member. JSON-encoded array: `[\"LOGIN\",\"{RelationReference}\"]`. Omit for a general-purpose program token.",
+                    "example": "[\"LOGIN\",\"jane.doe@example.com\"]"
+                  }
+                }
+              },
+              "example": {
+                "grant_type": "client_credentials",
+                "client_id": "your-client-id",
+                "client_secret": "your-client-secret"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Token issued",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": "string",
+                          "description": "JWT bearer token",
+                          "example": "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTUxMiIsInR5cCI6IkpXVCJ9..."
+                        },
+                        "tokenExpiresOn": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 expiry timestamp. Refresh before this time.",
+                          "example": "2026-03-16T15:15:02Z"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "results": {
+                    "token": "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTUxMiIsInR5cCI6IkpXVCJ9...",
+                    "tokenExpiresOn": "2026-03-16T15:15:02Z"
                   }
                 }
               }
             }
           },
-          "400": {
-            "description": "Unexpected error",
+          "401": {
+            "description": "Invalid credentials",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
+                "schema": { "$ref": "#/components/schemas/StandardError" },
+                "example": {
+                  "results": {
+                    "IsSucessful": false,
+                    "ErrorCode": "E401",
+                    "ExceptionMessage": "Invalid client credentials"
+                  }
                 }
               }
             }
@@ -96,121 +192,1297 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+
+    "/lbms-ingress/member/api/Member/CreateProfileWithAttributes": {
+      "post": {
+        "summary": "Create Profile",
+        "description": "Enroll a new member in your loyalty program.",
+        "operationId": "createProfile",
+        "tags": ["Member Management"],
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
+          { "$ref": "#/components/parameters/pintProgramId" }
         ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
         "requestBody": {
-          "description": "Plant added to the store",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "type": "object",
+                "required": ["relation_reference", "full_name", "email_id", "mobile_number", "status"],
+                "properties": {
+                  "relation_reference": {
+                    "type": "string",
+                    "description": "Unique member identifier — typically email-based. Primary key across all APIs.",
+                    "example": "jane.doe@example.com"
+                  },
+                  "full_name": { "type": "string", "example": "Jane Doe" },
+                  "email_id": { "type": "string", "format": "email", "example": "jane.doe@example.com" },
+                  "mobile_number": { "type": "string", "example": "+919876543210" },
+                  "status": {
+                    "type": "string",
+                    "description": "Use `5` for Inactive — standard initial state for new enrollments.",
+                    "example": "5"
+                  },
+                  "address": { "type": "string", "example": "123 Main Street, Mumbai 400001" },
+                  "gender": { "type": "string", "enum": ["M", "F", "O"], "example": "F" },
+                  "dob": { "type": "string", "format": "date", "description": "Date of birth in YYYY-MM-DD format", "example": "1990-06-15" }
+                }
+              },
+              "example": {
+                "relation_reference": "jane.doe@example.com",
+                "full_name": "Jane Doe",
+                "email_id": "jane.doe@example.com",
+                "mobile_number": "+919876543210",
+                "gender": "F",
+                "dob": "1990-06-15",
+                "status": "5"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
+            "description": "Member created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "results": {
+                    "IsSucessful": true,
+                    "ErrorCode": "000",
+                    "ExceptionMessage": "Success",
+                    "ReturnObject": true
+                  }
+                }
               }
             }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
           },
-          "message": {
-            "type": "string"
+          "409": {
+            "description": "Member already exists",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StandardError" },
+                "example": {
+                  "results": {
+                    "IsSucessful": false,
+                    "ErrorCode": "E409",
+                    "ExceptionMessage": "Member already exists"
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+
+    "/lbms-ingress/member/api/Member/GetMemberProfile": {
+      "get": {
+        "summary": "Get Member Profile",
+        "description": "Retrieve complete profile details for a member by their RelationReference.",
+        "operationId": "getMemberProfile",
+        "tags": ["Member Management"],
+        "parameters": [
+          { "$ref": "#/components/parameters/pintProgramId" },
+          {
+            "name": "pintRelationType",
+            "in": "query",
+            "required": true,
+            "description": "Relation type. Use `4` for customers.",
+            "schema": { "type": "integer", "example": 4 }
+          },
+          {
+            "name": "pstrRelationReference",
+            "in": "query",
+            "required": true,
+            "description": "The member's unique reference. URL-encode before passing (e.g. `jane.doe%40example.com`).",
+            "schema": { "type": "string", "example": "jane.doe@example.com" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Member profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "object",
+                      "properties": {
+                        "IsSucessful": { "type": "boolean" },
+                        "ErrorCode": { "type": "string" },
+                        "ExceptionMessage": { "type": "string" },
+                        "ReturnObject": { "$ref": "#/components/schemas/MemberProfile" }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "results": {
+                    "IsSucessful": true,
+                    "ErrorCode": "000",
+                    "ExceptionMessage": "Success",
+                    "ReturnObject": {
+                      "Id": 12345,
+                      "FullName": "Jane Doe",
+                      "Email": "jane.doe@example.com",
+                      "MobileNumber": "+919876543210",
+                      "Status": "Active",
+                      "TierName": "Silver",
+                      "TotalPoints": 1500
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Member not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/StandardError" } }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/member/api/Member/UpdateProfileWithAttributes": {
+      "post": {
+        "summary": "Update Profile",
+        "description": "Update an existing member's profile attributes.",
+        "operationId": "updateProfile",
+        "tags": ["Member Management"],
+        "parameters": [
+          { "$ref": "#/components/parameters/pintProgramId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Internal member ID from the `Id` field in Get Member Profile response.",
+                    "example": 12345
+                  },
+                  "data": {
+                    "type": "object",
+                    "description": "Profile fields to update. At least one attribute required.",
+                    "properties": {
+                      "email_id": { "type": "string", "format": "email", "example": "jane.smith@example.com" },
+                      "full_name": { "type": "string", "example": "Jane Smith" },
+                      "gender": { "type": "string", "enum": ["M", "F", "O"] },
+                      "dob": { "type": "string", "format": "date", "example": "1990-06-15" },
+                      "mobile_number": { "type": "string", "example": "+919876543211" },
+                      "address": { "type": "string", "example": "456 New Street, Mumbai 400002" }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "id": 12345,
+                "data": {
+                  "full_name": "Jane Smith",
+                  "mobile_number": "+919876543211"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "results": {
+                    "IsSucessful": true,
+                    "ErrorCode": "000",
+                    "ExceptionMessage": "Success",
+                    "ReturnObject": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/member/api/Member/GetMemberDetailsByUniqueAttribute": {
+      "get": {
+        "summary": "Get Member by Attribute",
+        "description": "Look up a member using a unique attribute such as email when RelationReference is unknown.",
+        "operationId": "getMemberByAttribute",
+        "tags": ["Member Management"],
+        "parameters": [
+          { "$ref": "#/components/parameters/pintProgramId" },
+          {
+            "name": "pstrUniqueAttributeKey",
+            "in": "query",
+            "required": true,
+            "description": "Attribute name to search by (e.g. `email_id`, `mobile_number`). URL-encode before passing.",
+            "schema": { "type": "string", "example": "email_id" }
+          },
+          {
+            "name": "pstrUniqueAttributeValue",
+            "in": "query",
+            "required": true,
+            "description": "Value to search for. URL-encode before passing.",
+            "schema": { "type": "string", "example": "jane.doe@example.com" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Member found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "object",
+                      "properties": {
+                        "IsSucessful": { "type": "boolean" },
+                        "ErrorCode": { "type": "string" },
+                        "ExceptionMessage": { "type": "string" },
+                        "ReturnObject": { "$ref": "#/components/schemas/MemberProfile" }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "results": {
+                    "IsSucessful": true,
+                    "ErrorCode": "000",
+                    "ExceptionMessage": "Success",
+                    "ReturnObject": {
+                      "Id": 12345,
+                      "FullName": "Jane Doe",
+                      "Email": "jane.doe@example.com",
+                      "RelationReference": "jane.doe@example.com",
+                      "TierName": "Silver",
+                      "TotalPoints": 1500
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Member not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/StandardError" } }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/member/api/Member/CheckMembershipCredentialsByRelationReference": {
+      "post": {
+        "summary": "Check Membership Credentials",
+        "description": "Validate a member's password for authentication. Returns the full member profile on success.",
+        "operationId": "checkMembershipCredentials",
+        "tags": ["Member Management"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["UniquerefID", "ProgramId", "RelationType", "Password"],
+                "properties": {
+                  "UniquerefID": { "type": "string", "description": "The member's RelationReference", "example": "jane.doe@example.com" },
+                  "ProgramId": { "type": "integer", "description": "Your loyalty program ID", "example": 19 },
+                  "RelationType": { "type": "integer", "description": "Use `4` for customers", "example": 4 },
+                  "Password": {
+                    "type": "string",
+                    "description": "Member's password hashed using bcrypt or MD5 as configured for your program.",
+                    "example": "$2b$10$hashed_password_here"
+                  }
+                }
+              },
+              "example": {
+                "UniquerefID": "jane.doe@example.com",
+                "ProgramId": 19,
+                "RelationType": 4,
+                "Password": "{hashed_password}"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Credentials valid — returns member profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "object",
+                      "properties": {
+                        "IsSucessful": { "type": "boolean" },
+                        "ErrorCode": { "type": "string" },
+                        "ExceptionMessage": { "type": "string" },
+                        "ReturnObject": { "$ref": "#/components/schemas/MemberProfile" }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "results": {
+                    "IsSucessful": true,
+                    "ErrorCode": "000",
+                    "ExceptionMessage": "Success",
+                    "ReturnObject": { "Id": 12345, "FullName": "Jane Doe", "Email": "jane.doe@example.com" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StandardError" },
+                "example": {
+                  "results": { "IsSucessful": false, "ErrorCode": "E401", "ExceptionMessage": "Invalid credentials" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/member/api/Member/GenerateOTP": {
+      "post": {
+        "summary": "Generate OTP",
+        "description": "Send an OTP to a member using their email address.",
+        "operationId": "generateOtp",
+        "tags": ["OTP"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["UniquerefID", "SourceAddress", "SourceCode", "OtpType", "ProgramId", "RelationType"],
+                "properties": {
+                  "UniquerefID": { "type": "string", "description": "The member's email address", "example": "jane.doe@example.com" },
+                  "SourceAddress": { "type": "string", "description": "IP address of the requesting system", "example": "192.168.1.1" },
+                  "SourceCode": {
+                    "type": "integer",
+                    "description": "Origin: 1=Web, 2=Mobile, 3=Email, 4=Service",
+                    "enum": [1, 2, 3, 4],
+                    "example": 1
+                  },
+                  "OtpType": { "$ref": "#/components/schemas/OtpType" },
+                  "ProgramId": { "type": "integer", "example": 19 },
+                  "RelationType": { "type": "integer", "description": "Use `4` for customers", "example": 4 }
+                }
+              },
+              "example": {
+                "UniquerefID": "jane.doe@example.com",
+                "SourceAddress": "192.168.1.1",
+                "SourceCode": 1,
+                "OtpType": "FORGOTPWD",
+                "ProgramId": 19,
+                "RelationType": 4
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP sent",
+            "content": {
+              "application/json": {
+                "example": {
+                  "results": { "IsSucessful": true, "ErrorCode": "000", "ExceptionMessage": "Success", "ReturnObject": true, "Count": 0 }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/member/api/Member/GenerateOTPByRelationReference": {
+      "post": {
+        "summary": "Generate OTP by Relation Reference",
+        "description": "Send an OTP using the member's RelationReference (CID) — preferred when the member identifier is already known.",
+        "operationId": "generateOtpByRelationReference",
+        "tags": ["OTP"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["UniquerefID", "SourceCode", "SourceAddress", "OtpType", "ProgramId", "RelationType"],
+                "properties": {
+                  "UniquerefID": { "type": "string", "description": "The member's RelationReference (CID)", "example": "jane.doe@example.com" },
+                  "SourceCode": { "type": "integer", "enum": [1, 2, 3, 4], "description": "1=Web, 2=Mobile, 3=Email, 4=Service", "example": 1 },
+                  "SourceAddress": { "type": "string", "description": "IP address of the requesting system", "example": "192.168.1.1" },
+                  "OtpType": { "$ref": "#/components/schemas/OtpType" },
+                  "ProgramId": { "type": "integer", "example": 19 },
+                  "RelationType": { "type": "integer", "description": "Use `4` for customers", "example": 4 }
+                }
+              },
+              "example": {
+                "UniquerefID": "jane.doe@example.com",
+                "SourceCode": 1,
+                "SourceAddress": "192.168.1.1",
+                "OtpType": "LOGIN",
+                "ProgramId": 19,
+                "RelationType": 4
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP sent",
+            "content": {
+              "application/json": {
+                "example": {
+                  "results": { "IsSucessful": true, "ErrorCode": "000", "ExceptionMessage": "Success", "ReturnObject": true, "Count": 0 }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/member/api/Member/VerifyOTP": {
+      "post": {
+        "summary": "Verify OTP",
+        "description": "Validate an OTP sent via Generate OTP (email-based flow).",
+        "operationId": "verifyOtp",
+        "tags": ["OTP"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["UniquerefID", "OTP", "DestinationAddress", "Destination", "OtpType", "ProgramId", "RelationType"],
+                "properties": {
+                  "UniquerefID": { "type": "string", "description": "The member's email address", "example": "jane.doe@example.com" },
+                  "OTP": { "type": "integer", "description": "The OTP entered by the member", "example": 123456 },
+                  "DestinationAddress": { "type": "string", "description": "IP address of the client device", "example": "192.168.1.1" },
+                  "Destination": { "type": "string", "enum": ["Web", "Mobile"], "example": "Web" },
+                  "OtpType": { "$ref": "#/components/schemas/OtpType" },
+                  "ProgramId": { "type": "integer", "example": 19 },
+                  "RelationType": { "type": "integer", "description": "Use `4` for customers", "example": 4 }
+                }
+              },
+              "example": {
+                "UniquerefID": "jane.doe@example.com",
+                "OTP": 123456,
+                "DestinationAddress": "192.168.1.1",
+                "Destination": "Web",
+                "OtpType": "FORGOTPWD",
+                "ProgramId": 19,
+                "RelationType": 4
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP verified",
+            "content": {
+              "application/json": {
+                "example": {
+                  "results": { "IsSucessful": true, "ErrorCode": "000", "ExceptionMessage": "Success", "ReturnObject": true }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or expired OTP",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StandardError" },
+                "example": {
+                  "results": { "IsSucessful": false, "ErrorCode": "E400", "ExceptionMessage": "Invalid or expired OTP" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/member/api/Member/VerifyOTPByRelationReference": {
+      "post": {
+        "summary": "Verify OTP by Relation Reference",
+        "description": "Validate a LOGIN OTP using the member's RelationReference.",
+        "operationId": "verifyOtpByRelationReference",
+        "tags": ["OTP"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["UniquerefID", "OTP", "DestinationAddress", "Destination", "OtpType", "ProgramId", "RelationType"],
+                "properties": {
+                  "UniquerefID": { "type": "string", "description": "The member's RelationReference (CID)", "example": "jane.doe@example.com" },
+                  "OTP": { "type": "integer", "example": 123456 },
+                  "DestinationAddress": { "type": "string", "example": "192.168.1.1" },
+                  "Destination": { "type": "string", "enum": ["Web", "Mobile"], "example": "Web" },
+                  "OtpType": { "$ref": "#/components/schemas/OtpType" },
+                  "ProgramId": { "type": "integer", "example": 19 },
+                  "RelationType": { "type": "integer", "example": 4 }
+                }
+              },
+              "example": {
+                "UniquerefID": "jane.doe@example.com",
+                "OTP": 123456,
+                "DestinationAddress": "192.168.1.1",
+                "Destination": "Web",
+                "OtpType": "LOGIN",
+                "ProgramId": 19,
+                "RelationType": 4
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP verified",
+            "content": {
+              "application/json": {
+                "example": {
+                  "results": { "IsSucessful": true, "ErrorCode": "000", "ExceptionMessage": "Success", "ReturnObject": true }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/transaction-lm/API/Transaction/InsertTransactionData": {
+      "post": {
+        "summary": "Insert Transaction",
+        "description": "Submit a synchronous loyalty transaction. Processed immediately by the Rule Engine.",
+        "operationId": "insertTransactionData",
+        "tags": ["Transactions"],
+        "parameters": [
+          { "$ref": "#/components/parameters/pintProgramId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["transaction_id", "amount", "transaction_date", "product_code", "member_relation_reference", "transaction_type"],
+                "properties": {
+                  "transaction_id": { "type": "string", "description": "Your unique transaction reference", "example": "TXN-2026-001" },
+                  "amount": { "type": "number", "example": 1500 },
+                  "transaction_date": { "type": "string", "format": "date", "example": "2026-05-11" },
+                  "product_code": { "type": "string", "description": "Product or merchant code as configured in your program", "example": "RETAIL001" },
+                  "sub_product_code": { "type": "string", "example": "ELECTRONICS" },
+                  "member_relation_reference": { "type": "string", "example": "jane.doe@example.com" },
+                  "transaction_type": { "type": "string", "description": "DR for debit (purchase/earn), CR for credit (reversal)", "example": "DR" }
+                }
+              },
+              "example": {
+                "transaction_id": "TXN-2026-001",
+                "amount": 1500,
+                "transaction_date": "2026-05-11",
+                "product_code": "RETAIL001",
+                "sub_product_code": "ELECTRONICS",
+                "member_relation_reference": "jane.doe@example.com",
+                "transaction_type": "DR"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction accepted",
+            "content": {
+              "application/json": {
+                "example": {
+                  "results": { "IsSucessful": true, "ErrorCode": "000", "ExceptionMessage": "Success", "ReturnObject": true }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StandardError" },
+                "example": {
+                  "results": { "IsSucessful": false, "ErrorCode": "E400", "ExceptionMessage": "Invalid product code" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/transaction-lm/API/Transaction/InsertTransactionDataV2": {
+      "post": {
+        "summary": "Insert Transaction V2 (Batch)",
+        "description": "Submit one or more transactions asynchronously. Returns a `batch_id` for polling outcomes.",
+        "operationId": "insertTransactionDataV2",
+        "tags": ["Transactions"],
+        "parameters": [
+          { "$ref": "#/components/parameters/pintProgramId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/TransactionItem" },
+                "description": "Array of transaction objects to process"
+              },
+              "example": [
+                {
+                  "transaction_id": "TXN-2026-001",
+                  "_xoxo_api_client_idempotency": "order-inv-2026-001",
+                  "amount": 1500,
+                  "transaction_date": "2026-05-11",
+                  "product_code": "RETAIL001",
+                  "sub_product_code": "ELECTRONICS",
+                  "member_relation_reference": "jane.doe@example.com",
+                  "transaction_type": "dr"
+                },
+                {
+                  "transaction_id": "TXN-2026-002",
+                  "_xoxo_api_client_idempotency": "order-inv-2026-002",
+                  "amount": 800,
+                  "transaction_date": "2026-05-11",
+                  "product_code": "RETAIL001",
+                  "member_relation_reference": "john.smith@example.com",
+                  "transaction_type": "dr"
+                }
+              ]
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Transactions queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "object",
+                      "properties": {
+                        "IsSucessful": { "type": "boolean" },
+                        "ErrorCode": { "type": "string" },
+                        "ExceptionMessage": { "type": "string" },
+                        "ReturnObject": {
+                          "type": "object",
+                          "properties": {
+                            "batch_id": { "type": "string", "format": "uuid", "description": "Use with Poll Batch Status", "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890" },
+                            "message": { "type": "string", "example": "Transactions queued successfully" },
+                            "total_transactions": { "type": "integer", "example": 2 }
+                          }
+                        },
+                        "Count": { "type": "integer", "example": 0 }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "results": {
+                    "IsSucessful": true,
+                    "ErrorCode": "000",
+                    "ExceptionMessage": "Success",
+                    "ReturnObject": {
+                      "batch_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "message": "Transactions queued successfully",
+                      "total_transactions": 2
+                    },
+                    "Count": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/transaction-lm/API/Transaction/PollTransactionBatchStatus": {
+      "get": {
+        "summary": "Poll Batch Status",
+        "description": "Check processing status of a batch submitted via Insert Transaction V2. Poll until `summary.pending === 0`.",
+        "operationId": "pollTransactionBatchStatus",
+        "tags": ["Transactions"],
+        "parameters": [
+          { "$ref": "#/components/parameters/pintProgramId" },
+          {
+            "name": "batch_id",
+            "in": "query",
+            "required": true,
+            "description": "UUID returned by InsertTransactionDataV2",
+            "schema": { "type": "string", "format": "uuid", "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Batch status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "object",
+                      "properties": {
+                        "IsSucessful": { "type": "boolean" },
+                        "ErrorCode": { "type": "string" },
+                        "ExceptionMessage": { "type": "string" },
+                        "ReturnObject": {
+                          "type": "object",
+                          "properties": {
+                            "batch_id": { "type": "string", "format": "uuid" },
+                            "summary": {
+                              "type": "object",
+                              "properties": {
+                                "total": { "type": "integer" },
+                                "success": { "type": "integer" },
+                                "failed": { "type": "integer" },
+                                "pending": { "type": "integer" },
+                                "on_hold": { "type": "integer" },
+                                "partial_hold": { "type": "integer" }
+                              }
+                            },
+                            "results": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "request_id": { "type": "string" },
+                                  "status": { "type": "string", "enum": ["SUCCESS", "FAILED", "ON HOLD", "PARTIAL HOLD", "PENDING"] },
+                                  "points": { "type": "integer" },
+                                  "message": { "type": "string" },
+                                  "error": { "type": "string" }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "Count": { "type": "integer" }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "results": {
+                    "IsSucessful": true,
+                    "ErrorCode": "000",
+                    "ExceptionMessage": "Success",
+                    "ReturnObject": {
+                      "batch_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "summary": { "total": 5, "success": 3, "failed": 1, "pending": 0, "on_hold": 1, "partial_hold": 0 },
+                      "results": [
+                        { "request_id": "req-001", "status": "SUCCESS", "points": 150, "message": "Points awarded" },
+                        { "request_id": "req-002", "status": "FAILED", "error": "Invalid product code" },
+                        { "request_id": "req-003", "status": "ON HOLD", "message": "Points hold enabled — pending review" }
+                      ]
+                    },
+                    "Count": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/transaction-lm/API/Transaction/GetMemberTransactionSummaryByDate": {
+      "post": {
+        "summary": "Get Transaction Summary by Date",
+        "description": "Retrieve a paginated list of a member's loyalty transactions within a date range.",
+        "operationId": "getMemberTransactionSummaryByDate",
+        "tags": ["Transactions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["DateFrom", "DateTo", "MinimumRange", "MaximumRange", "RelationReference", "TransactionCurrency", "RelationType", "ProgramId"],
+                "properties": {
+                  "DateFrom": { "type": "string", "format": "date-time", "description": "Start date in ISO 8601 format", "example": "2026-01-01T00:00:00" },
+                  "DateTo": { "type": "string", "format": "date-time", "description": "End date in ISO 8601 format", "example": "2026-05-11T23:59:59" },
+                  "MinimumRange": { "type": "integer", "description": "Pagination start index (0-based)", "example": 0 },
+                  "MaximumRange": { "type": "integer", "description": "Number of records to return per page", "example": 10 },
+                  "RelationReference": { "type": "string", "example": "jane.doe@example.com" },
+                  "TransactionCurrency": { "type": "string", "example": "DEFAULT" },
+                  "RelationType": { "type": "integer", "example": 4 },
+                  "ProgramId": { "type": "integer", "example": 19 }
+                }
+              },
+              "example": {
+                "DateFrom": "2026-01-01T00:00:00",
+                "DateTo": "2026-05-11T23:59:59",
+                "MinimumRange": 0,
+                "MaximumRange": 10,
+                "RelationReference": "jane.doe@example.com",
+                "TransactionCurrency": "DEFAULT",
+                "RelationType": 4,
+                "ProgramId": 19
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transactions retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "object",
+                      "properties": {
+                        "IsSucessful": { "type": "boolean" },
+                        "ErrorCode": { "type": "string" },
+                        "ExceptionMessage": { "type": "string" },
+                        "ReturnObject": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "Id": { "type": "integer", "description": "Internal transaction ID", "example": 541010 },
+                              "Points": { "type": "integer", "description": "Points earned or redeemed", "example": 100 },
+                              "Narration": { "type": "string", "example": "Referral Bonus" },
+                              "TransactionDate": { "type": "string", "format": "date-time" },
+                              "ProcessingDate": { "type": "string", "format": "date-time" },
+                              "ExpiryDate": { "type": "string", "format": "date-time", "description": "When the awarded points expire" },
+                              "RelationReference": { "type": "string" },
+                              "ExternalReference": { "type": "string", "format": "uuid" },
+                              "LoyaltyTxnType": { "type": "integer", "description": "1=Spend, 2=Earn/Bonus" },
+                              "TransactionType": { "type": "integer" },
+                              "IsActive": { "type": "boolean" }
+                            }
+                          }
+                        },
+                        "Count": { "type": "integer", "description": "Total matching records (for pagination)", "example": 10 }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "results": {
+                    "IsSucessful": true,
+                    "ErrorCode": "000",
+                    "ExceptionMessage": "Success",
+                    "ReturnObject": [
+                      {
+                        "Id": 541010,
+                        "Points": 100,
+                        "Narration": "Referral Bonus",
+                        "TransactionDate": "2026-02-03T11:16:03.703",
+                        "ProcessingDate": "2026-02-03T11:16:03.703",
+                        "ExpiryDate": "2026-03-31T00:00:00",
+                        "RelationReference": "jane.doe@example.com",
+                        "ExternalReference": "6D5EF94C-BB4C-4F2D-A57E-DB620BCE96D3",
+                        "LoyaltyTxnType": 2,
+                        "TransactionType": 1,
+                        "IsActive": true
+                      }
+                    ],
+                    "Count": 10
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/transaction-lm/API/Transaction/GetMemberStatementSummary": {
+      "post": {
+        "summary": "Get Statement Summary",
+        "description": "Retrieve a member's aggregated points balance and loyalty statement totals.",
+        "operationId": "getMemberStatementSummary",
+        "tags": ["Transactions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["RelationReference", "TransactionCurrency", "RelationType", "ProgramId"],
+                "properties": {
+                  "RelationReference": { "type": "string", "example": "jane.doe@example.com" },
+                  "TransactionCurrency": { "type": "string", "example": "DEFAULT" },
+                  "RelationType": { "type": "integer", "example": 4 },
+                  "ProgramId": { "type": "integer", "example": 19 }
+                }
+              },
+              "example": {
+                "RelationReference": "jane.doe@example.com",
+                "TransactionCurrency": "DEFAULT",
+                "RelationType": 4,
+                "ProgramId": 19
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Statement summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "object",
+                      "properties": {
+                        "IsSucessful": { "type": "boolean" },
+                        "ErrorCode": { "type": "string" },
+                        "ExceptionMessage": { "type": "string" },
+                        "ReturnObject": {
+                          "type": "object",
+                          "properties": {
+                            "Bonus": { "type": "integer", "description": "Total bonus points earned", "example": 500 },
+                            "Spend": { "type": "integer", "description": "Total points earned through purchases", "example": 1200 },
+                            "Redeem": { "type": "integer", "description": "Total points redeemed", "example": 300 },
+                            "Partner": { "type": "integer", "example": 0 },
+                            "Purchased": { "type": "integer", "example": 0 },
+                            "ExpiredPoints": { "type": "integer", "description": "Total expired points", "example": 50 },
+                            "PointBalance": { "type": "integer", "description": "Current redeemable points balance", "example": 1350 }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "results": {
+                    "IsSucessful": true,
+                    "ErrorCode": "000",
+                    "ExceptionMessage": "Success",
+                    "ReturnObject": {
+                      "Bonus": 500,
+                      "Spend": 1200,
+                      "Redeem": 300,
+                      "Partner": 0,
+                      "Purchased": 0,
+                      "ExpiredPoints": 50,
+                      "PointBalance": 1350
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/transaction-lm/API/Transaction/GetExpirySchedule": {
+      "post": {
+        "summary": "Get Expiry Schedule",
+        "description": "Retrieve the periodic points expiry schedule for a member.",
+        "operationId": "getExpirySchedule",
+        "tags": ["Transactions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["RelationReference", "RelationType", "ProgramId", "TransactionCurrency", "Year"],
+                "properties": {
+                  "RelationReference": { "type": "string", "example": "jane.doe@example.com" },
+                  "RelationType": { "type": "integer", "example": 4 },
+                  "ProgramId": { "type": "integer", "example": 19 },
+                  "TransactionCurrency": { "type": "string", "example": "DEFAULT" },
+                  "Year": { "type": "integer", "description": "Year for the expiry schedule", "example": 2026 }
+                }
+              },
+              "example": {
+                "RelationReference": "jane.doe@example.com",
+                "RelationType": 4,
+                "ProgramId": 19,
+                "TransactionCurrency": "DEFAULT",
+                "Year": 2026
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Expiry schedule",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "object",
+                      "properties": {
+                        "IsSucessful": { "type": "boolean" },
+                        "ErrorCode": { "type": "string" },
+                        "ExceptionMessage": { "type": "string" },
+                        "ReturnObject": {
+                          "type": "object",
+                          "properties": {
+                            "Period": { "type": "string", "description": "Expiry period type", "example": "Quarterly" },
+                            "ExpiryPeriod": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "ScheduleDate": { "type": "string", "format": "date-time", "description": "Date when this batch of points expires" },
+                                  "AccrualPoints": { "type": "integer", "description": "Points accrued in this period", "example": 500 },
+                                  "RedeemPoints": { "type": "integer", "example": 100 },
+                                  "BlockedPoints": { "type": "integer", "example": 0 },
+                                  "TotalAvailablePoints": { "type": "integer", "description": "Points available after deductions", "example": 400 }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "results": {
+                    "IsSucessful": true,
+                    "ErrorCode": "000",
+                    "ExceptionMessage": "Success",
+                    "ReturnObject": {
+                      "Period": "Quarterly",
+                      "ExpiryPeriod": [
+                        { "ScheduleDate": "2026-03-31T00:00:00", "AccrualPoints": 500, "RedeemPoints": 100, "BlockedPoints": 0, "TotalAvailablePoints": 400 },
+                        { "ScheduleDate": "2026-06-30T00:00:00", "AccrualPoints": 300, "RedeemPoints": 50, "BlockedPoints": 0, "TotalAvailablePoints": 250 }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/pg-lm/API/PG/CheckAvailability": {
+      "post": {
+        "summary": "Check Availability",
+        "description": "Verify a member's redeemable points balance before initiating a redemption.",
+        "operationId": "checkAvailability",
+        "tags": ["Points Redemption"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["RelationReference", "TransactionCurrency", "RelationType", "ProgramId"],
+                "properties": {
+                  "RelationReference": { "type": "string", "example": "jane.doe@example.com" },
+                  "TransactionCurrency": { "type": "string", "example": "DEFAULT" },
+                  "RelationType": { "type": "integer", "description": "Use `4` for customers", "example": 4 },
+                  "ProgramId": { "type": "integer", "example": 19 }
+                }
+              },
+              "example": {
+                "RelationReference": "jane.doe@example.com",
+                "TransactionCurrency": "DEFAULT",
+                "RelationType": 4,
+                "ProgramId": 19
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Balance retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "object",
+                      "properties": {
+                        "IsSucessful": { "type": "boolean" },
+                        "ErrorCode": { "type": "string" },
+                        "ExceptionMessage": { "type": "string" },
+                        "ReturnObject": { "type": "integer", "description": "Member's current redeemable points balance", "example": 910 }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "results": { "IsSucessful": true, "ErrorCode": "000", "ExceptionMessage": "Success", "ReturnObject": 910 }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/pg-lm/API/PG/RedeemPoints": {
+      "post": {
+        "summary": "Redeem Points",
+        "description": "Deduct points from a member's balance. Returns an `ExternalReference` UUID — save it for potential reversals.",
+        "operationId": "redeemPoints",
+        "tags": ["Points Redemption"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["RelationReference", "Amount", "Points", "MerchantName", "LoyaltyTxnType", "TransactionCurrency", "RelationType", "ProgramId"],
+                "properties": {
+                  "RelationReference": { "type": "string", "example": "jane.doe@example.com" },
+                  "Amount": { "type": "number", "description": "Monetary value equivalent of the redemption", "example": 500 },
+                  "Points": { "type": "integer", "description": "Number of points to deduct", "example": 500 },
+                  "MerchantName": { "type": "string", "description": "Merchant or redemption channel name", "example": "Amazon" },
+                  "LoyaltyTxnType": {
+                    "type": "integer",
+                    "description": "Redemption category: 5=Hotel, 6=Air/Flight, 19=Charity, 30=Gift Card",
+                    "enum": [5, 6, 19, 30],
+                    "example": 30
+                  },
+                  "TransactionCurrency": { "type": "string", "example": "DEFAULT" },
+                  "RelationType": { "type": "integer", "description": "Use `4` for customers", "example": 4 },
+                  "ProgramId": { "type": "integer", "example": 19 }
+                }
+              },
+              "example": {
+                "RelationReference": "jane.doe@example.com",
+                "Amount": 500,
+                "Points": 500,
+                "MerchantName": "Amazon",
+                "LoyaltyTxnType": 30,
+                "TransactionCurrency": "DEFAULT",
+                "RelationType": 4,
+                "ProgramId": 19
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Points redeemed — `ReturnObject` is the ExternalReference UUID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "object",
+                      "properties": {
+                        "IsSucessful": { "type": "boolean" },
+                        "ErrorCode": { "type": "string" },
+                        "ExceptionMessage": { "type": "string" },
+                        "ReturnObject": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "ExternalReference UUID. Store this — required for ReversalPoints if fulfillment fails.",
+                          "example": "3FA85F64-5717-4562-B3FC-2C963F66AFA6"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "results": {
+                    "IsSucessful": true,
+                    "ErrorCode": "000",
+                    "ExceptionMessage": "Success",
+                    "ReturnObject": "3FA85F64-5717-4562-B3FC-2C963F66AFA6"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/lbms-ingress/pg-lm/API/PG/ReversalPoints": {
+      "post": {
+        "summary": "Reversal Points",
+        "description": "Reverse a redemption transaction and restore the member's points balance.",
+        "operationId": "reversalPoints",
+        "tags": ["Points Redemption"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["RelationReference", "MerchantName", "ExternalReference", "ProgramId"],
+                "properties": {
+                  "RelationReference": {
+                    "type": "string",
+                    "description": "Must match the RelationReference from the original RedeemPoints call.",
+                    "example": "jane.doe@example.com"
+                  },
+                  "MerchantName": {
+                    "type": "string",
+                    "description": "Must match the MerchantName from the original RedeemPoints call.",
+                    "example": "Amazon"
+                  },
+                  "ExternalReference": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "UUID returned by RedeemPoints. Identifies the redemption being reversed.",
+                    "example": "3FA85F64-5717-4562-B3FC-2C963F66AFA6"
+                  },
+                  "ProgramId": { "type": "integer", "example": 19 }
+                }
+              },
+              "example": {
+                "RelationReference": "jane.doe@example.com",
+                "MerchantName": "Amazon",
+                "ExternalReference": "3FA85F64-5717-4562-B3FC-2C963F66AFA6",
+                "ProgramId": 19
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reversal successful — points restored",
+            "content": {
+              "application/json": {
+                "example": {
+                  "results": { "IsSucessful": true, "ErrorCode": "000", "ExceptionMessage": "Success", "ReturnObject": true }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

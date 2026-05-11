@@ -1,98 +1,12 @@
 ---
 title: Check Availability
 description: Verify a member's redeemable points balance before initiating a redemption.
+openapi: "POST /lbms-ingress/pg-lm/API/PG/CheckAvailability"
 ---
-
-## Endpoint
-
-```
-POST https://{domain}/lbms-ingress/pg-lm/API/PG/CheckAvailability
-```
 
 ## When to Use
 
-Always call this endpoint **before** [Redeem Points](/api-reference/payment-gateway/redeem-points) to confirm the member has enough points to fulfill the redemption. Returns the total redeemable balance as a number.
-
-## Request
-
-### Headers
-
-| Header | Value | Required |
-|---|---|---|
-| `Authorization` | `bearer {token}` | Yes |
-| `Content-Type` | `application/json` | Yes |
-
-### Body
-
-<ParamField body="RelationReference" type="string" required>
-  The member's unique reference.
-</ParamField>
-
-<ParamField body="TransactionCurrency" type="string" required>
-  Use `"DEFAULT"`.
-</ParamField>
-
-<ParamField body="RelationType" type="integer" required>
-  Use `4` for customers.
-</ParamField>
-
-<ParamField body="ProgramId" type="integer" required>
-  Your loyalty program ID.
-</ParamField>
-
-### Example Request
-
-<CodeGroup>
-
-```bash cURL
-curl --request POST \
-  --url 'https://{domain}/lbms-ingress/pg-lm/API/PG/CheckAvailability' \
-  --header 'Authorization: bearer {token}' \
-  --header 'Content-Type: application/json' \
-  --data '{
-    "RelationReference": "jane.doe@example.com",
-    "TransactionCurrency": "DEFAULT",
-    "RelationType": 4,
-    "ProgramId": 19
-  }'
-```
-
-```python Python
-import requests
-
-res = requests.post(
-    "https://{domain}/lbms-ingress/pg-lm/API/PG/CheckAvailability",
-    headers={"Authorization": "bearer {token}", "Content-Type": "application/json"},
-    json={
-        "RelationReference": "jane.doe@example.com",
-        "TransactionCurrency": "DEFAULT",
-        "RelationType": 4,
-        "ProgramId": 19
-    }
-)
-available_points = res.json()["results"]["ReturnObject"]
-```
-
-</CodeGroup>
-
-## Response
-
-### 200 — Success
-
-```json
-{
-  "results": {
-    "IsSucessful": true,
-    "ErrorCode": "000",
-    "ExceptionMessage": "Success",
-    "ReturnObject": 910
-  }
-}
-```
-
-<ResponseField name="results.ReturnObject" type="integer">
-  The member's current redeemable points balance.
-</ResponseField>
+Always call this **before** [Redeem Points](/api-reference/payment-gateway/redeem-points) to confirm the member has enough points. `ReturnObject` is the integer balance.
 
 ## Typical Flow
 

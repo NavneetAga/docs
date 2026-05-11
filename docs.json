@@ -8,6 +8,12 @@
     "dark": "#B50F2D"
   },
   "favicon": "/favicon.svg",
+  "openapi": "/api-reference/openapi.json",
+  "api": {
+    "playground": {
+      "display": "interactive"
+    }
+  },
   "navigation": {
     "tabs": [
       {

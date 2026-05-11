@@ -1,103 +1,13 @@
 ---
 title: Generate OTP
-description: Send an OTP to a member's registered email address (use when email is known).
+description: Send an OTP to a member's registered email or SMS channel using their email address.
+openapi: "POST /lbms-ingress/member/api/Member/GenerateOTP"
 ---
-
-## Endpoint
-
-```
-POST https://{domain}/lbms-ingress/member/api/Member/GenerateOTP
-```
 
 ## When to Use
 
-Use this when the member's **email address** is known (i.e. `UniquerefID` is an email). The OTP is sent to the member's registered email or SMS, depending on your program configuration.
+Use this when the member's **email address** is known (i.e. `UniquerefID` is an email). The OTP is sent to the member's registered channel based on your program configuration.
 
 If you know the member's `RelationReference` (CID) instead, use [Generate OTP by Relation Reference](/api-reference/otp/generate-otp-by-relation).
 
-## Request
-
-### Headers
-
-| Header | Value | Required |
-|---|---|---|
-| `Authorization` | `bearer {token}` | Yes |
-| `Content-Type` | `application/json` | Yes |
-
-### Body
-
-<ParamField body="UniquerefID" type="string" required>
-  The member's **email address**.
-</ParamField>
-
-<ParamField body="SourceAddress" type="string" required>
-  IP address of the requesting system (e.g. `192.168.1.1`).
-</ParamField>
-
-<ParamField body="SourceCode" type="integer" required>
-  Origin of the request:
-  - `1` = Web
-  - `2` = Mobile
-  - `3` = Email
-  - `4` = Service
-</ParamField>
-
-<ParamField body="OtpType" type="string" required>
-  Purpose of the OTP. Common values:
-
-  | Value | Use Case |
-  |---|---|
-  | `LOGIN` | Member login |
-  | `FORGOTPWD` | Password reset |
-  | `ACTIVATION` | Account activation |
-  | `CHANGEPASSWORD` | Change password |
-  | `RESETPASSWORD` | Reset password |
-  | `TwoFA` | Two-factor authentication |
-</ParamField>
-
-<ParamField body="ProgramId" type="integer" required>
-  Your loyalty program ID.
-</ParamField>
-
-<ParamField body="RelationType" type="integer" required>
-  Use `4` for customers.
-</ParamField>
-
-### Example Request
-
-<CodeGroup>
-
-```bash cURL
-curl --request POST \
-  --url 'https://{domain}/lbms-ingress/member/api/Member/GenerateOTP' \
-  --header 'Authorization: bearer {token}' \
-  --header 'Content-Type: application/json' \
-  --data '{
-    "UniquerefID": "jane.doe@example.com",
-    "SourceAddress": "192.168.1.1",
-    "SourceCode": 1,
-    "OtpType": "FORGOTPWD",
-    "ProgramId": 19,
-    "RelationType": 4
-  }'
-```
-
-</CodeGroup>
-
-## Response
-
-### 200 — Success
-
-```json
-{
-  "results": {
-    "IsSucessful": true,
-    "ErrorCode": "000",
-    "ExceptionMessage": "Success",
-    "ReturnObject": true,
-    "Count": 0
-  }
-}
-```
-
-After a successful response, the OTP is sent to the member. Verify it with [Verify OTP](/api-reference/otp/verify-otp).
+After a successful response, verify the OTP with [Verify OTP](/api-reference/otp/verify-otp).

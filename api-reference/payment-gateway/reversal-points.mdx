@@ -1,95 +1,14 @@
 ---
 title: Reversal Points
 description: Reverse a redemption transaction and restore the member's points balance.
+openapi: "POST /lbms-ingress/pg-lm/API/PG/ReversalPoints"
 ---
-
-## Endpoint
-
-```
-POST https://{domain}/lbms-ingress/pg-lm/API/PG/ReversalPoints
-```
 
 ## When to Use
 
-Use this when a redemption needs to be cancelled or reversed — for example, if the downstream fulfillment failed (booking error, gift card not issued, etc.). The deducted points are restored to the member's balance.
+Use this when a redemption needs to be cancelled — for example, if the downstream fulfillment failed (booking error, gift card not issued, etc.). The deducted points are restored to the member's balance.
 
 You must have the `ExternalReference` UUID returned by [Redeem Points](/api-reference/payment-gateway/redeem-points).
-
-## Request
-
-### Headers
-
-| Header | Value | Required |
-|---|---|---|
-| `Authorization` | `bearer {token}` | Yes |
-| `Content-Type` | `application/json` | Yes |
-
-### Body
-
-<ParamField body="RelationReference" type="string" required>
-  The member's unique reference — must match the one used in the original `RedeemPoints` call.
-</ParamField>
-
-<ParamField body="MerchantName" type="string" required>
-  Merchant name — must match the one used in the original `RedeemPoints` call.
-</ParamField>
-
-<ParamField body="ExternalReference" type="string" required>
-  The UUID returned by `RedeemPoints`. This is the identifier for the specific redemption being reversed.
-</ParamField>
-
-<ParamField body="ProgramId" type="integer" required>
-  Your loyalty program ID.
-</ParamField>
-
-### Example Request
-
-<CodeGroup>
-
-```bash cURL
-curl --request POST \
-  --url 'https://{domain}/lbms-ingress/pg-lm/API/PG/ReversalPoints' \
-  --header 'Authorization: bearer {token}' \
-  --header 'Content-Type: application/json' \
-  --data '{
-    "RelationReference": "jane.doe@example.com",
-    "MerchantName": "Amazon",
-    "ExternalReference": "3FA85F64-5717-4562-B3FC-2C963F66AFA6",
-    "ProgramId": 19
-  }'
-```
-
-```python Python
-import requests
-
-requests.post(
-    "https://{domain}/lbms-ingress/pg-lm/API/PG/ReversalPoints",
-    headers={"Authorization": "bearer {token}", "Content-Type": "application/json"},
-    json={
-        "RelationReference": "jane.doe@example.com",
-        "MerchantName": "Amazon",
-        "ExternalReference": "3FA85F64-5717-4562-B3FC-2C963F66AFA6",
-        "ProgramId": 19
-    }
-)
-```
-
-</CodeGroup>
-
-## Response
-
-### 200 — Success
-
-```json
-{
-  "results": {
-    "IsSucessful": true,
-    "ErrorCode": "000",
-    "ExceptionMessage": "Success",
-    "ReturnObject": true
-  }
-}
-```
 
 ## Redemption Flow
 

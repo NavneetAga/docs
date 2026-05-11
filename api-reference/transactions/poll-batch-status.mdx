@@ -1,13 +1,8 @@
 ---
 title: Poll Batch Status
 description: Check the processing status of a transaction batch submitted via Insert Transaction V2.
+openapi: "GET /lbms-ingress/transaction-lm/API/Transaction/PollTransactionBatchStatus"
 ---
-
-## Endpoint
-
-```
-GET https://{domain}/lbms-ingress/transaction-lm/API/Transaction/PollTransactionBatchStatus
-```
 
 ## When to Use
 
@@ -15,120 +10,15 @@ After submitting a batch with [Insert Transaction V2](/api-reference/transaction
 
 **Poll until `summary.pending === 0`** (or your SLA timeout is reached), using exponential backoff between polls.
 
-## Request
-
-### Headers
-
-| Header | Value | Required |
-|---|---|---|
-| `Authorization` | `Bearer {token}` | Yes |
-| `accept` | `*/*` | Optional |
-
-### Query Parameters
-
-<ParamField query="pintProgramId" type="integer" required>
-  Your loyalty program ID.
-</ParamField>
-
-<ParamField query="batch_id" type="string" required>
-  The UUID returned by `InsertTransactionDataV2`.
-</ParamField>
-
-### Example Request
-
-<CodeGroup>
-
-```bash cURL
-curl --request GET \
-  --url 'https://{domain}/lbms-ingress/transaction-lm/API/Transaction/PollTransactionBatchStatus?pintProgramId=19&batch_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890' \
-  --header 'Authorization: Bearer {token}'
-```
-
-```python Python
-import requests
-import time
-
-def poll_batch(domain, token, program_id, batch_id, timeout=300):
-    deadline = time.time() + timeout
-    while time.time() < deadline:
-        res = requests.get(
-            f"https://{domain}/lbms-ingress/transaction-lm/API/Transaction/PollTransactionBatchStatus",
-            params={"pintProgramId": program_id, "batch_id": batch_id},
-            headers={"Authorization": f"Bearer {token}"}
-        )
-        data = res.json()["results"]["ReturnObject"]
-        if data["summary"]["pending"] == 0:
-            return data
-        time.sleep(5)  # backoff
-    raise TimeoutError("Batch did not complete within timeout")
-```
-
-</CodeGroup>
-
-## Response
-
-### 200 — Success
-
-```json
-{
-  "results": {
-    "IsSucessful": true,
-    "ErrorCode": "000",
-    "ExceptionMessage": "Success",
-    "ReturnObject": {
-      "batch_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-      "summary": {
-        "total": 5,
-        "success": 3,
-        "failed": 1,
-        "pending": 0,
-        "on_hold": 1,
-        "partial_hold": 0
-      },
-      "results": [
-        {
-          "request_id": "req-001",
-          "status": "SUCCESS",
-          "points": 150,
-          "message": "Points awarded"
-        },
-        {
-          "request_id": "req-002",
-          "status": "FAILED",
-          "error": "Invalid product code"
-        },
-        {
-          "request_id": "req-003",
-          "status": "ON HOLD",
-          "message": "Points hold enabled — pending review"
-        },
-        {
-          "request_id": "req-004",
-          "status": "PARTIAL HOLD",
-          "points": 50,
-          "message": "Partial points awarded; remaining on hold"
-        },
-        {
-          "request_id": "req-005",
-          "status": "PENDING",
-          "message": "Still processing"
-        }
-      ]
-    },
-    "Count": 0
-  }
-}
-```
-
 ## Per-Item Status Values
 
-| Status | Fields | Meaning |
-|---|---|---|
-| `SUCCESS` | `request_id`, `status`, `points`, `message` | Processed successfully. `points` shows awarded points (program-dependent). |
-| `FAILED` | `request_id`, `status`, `error` | Processing failed. `error` contains the reason. Contact support with the `request_id`. |
-| `ON HOLD` | `request_id`, `status`, `message` | Transaction held — Points Hold is enabled or an Anomaly Detection threshold was triggered. No points awarded until reviewed and released. |
-| `PARTIAL HOLD` | `request_id`, `status`, `points`, `message` | Some rewards awarded (`points`); remaining rewards held for review. |
-| `PENDING` | `request_id`, `status`, `message` | Still processing. Continue polling with backoff. |
+| Status | Meaning |
+|---|---|
+| `SUCCESS` | Processed successfully. `points` shows awarded points. |
+| `FAILED` | Processing failed. `error` contains the reason. Contact support with `request_id`. |
+| `ON HOLD` | Transaction held — Points Hold is enabled or Anomaly Detection triggered. No points until reviewed. |
+| `PARTIAL HOLD` | Some rewards awarded; remaining held for review. |
+| `PENDING` | Still processing. Continue polling with backoff. |
 
 <Warning>
   Keep polling until `summary.pending === 0`. Items in `PENDING` state are not yet finalized — their outcome may change.

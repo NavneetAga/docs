@@ -1,94 +1,11 @@
 ---
 title: Update Profile
 description: Update an existing member's profile attributes.
+openapi: "POST /lbms-ingress/member/api/Member/UpdateProfileWithAttributes"
 ---
 
-## Endpoint
-
-```
-POST https://{domain}/lbms-ingress/member/api/Member/UpdateProfileWithAttributes?pintProgramId={ProgramId}
-```
-
-## Request
-
-### Headers
-
-| Header | Value | Required |
-|---|---|---|
-| `Authorization` | `bearer {token}` | Yes |
-| `Content-Type` | `application/json` | Yes |
-
-### Query Parameters
-
-<ParamField query="pintProgramId" type="integer" required>
-  Your loyalty program ID.
-</ParamField>
-
-### Body
-
-<ParamField body="id" type="integer" required>
-  Internal member ID. Obtain this from the `Id` field in the [Get Member Profile](/api-reference/members/get-member-profile) response.
-</ParamField>
-
-<ParamField body="data.email_id" type="string">
-  Updated email address.
-</ParamField>
-
-<ParamField body="data.full_name" type="string">
-  Updated full name.
-</ParamField>
-
-<ParamField body="data.gender" type="string">
-  Updated gender. Allowed values: `M`, `F`, `O`.
-</ParamField>
-
-<ParamField body="data.dob" type="string">
-  Updated date of birth in `YYYY-MM-DD` format.
-</ParamField>
-
-<ParamField body="data.mobile_number" type="string">
-  Updated mobile number.
-</ParamField>
-
-<ParamField body="data.address" type="string">
-  Updated address.
-</ParamField>
-
 <Note>
-  At least one `data.*` attribute must be present in the payload. Custom attributes defined in your CPD schema can also be included.
+  At least one `data.*` attribute must be present in the payload. Custom attributes defined in your CPD schema can also be included under `data`.
 </Note>
 
-### Example Request
-
-<CodeGroup>
-
-```bash cURL
-curl --request POST \
-  --url 'https://{domain}/lbms-ingress/member/api/Member/UpdateProfileWithAttributes?pintProgramId=19' \
-  --header 'Authorization: bearer {token}' \
-  --header 'Content-Type: application/json' \
-  --data '{
-    "id": 12345,
-    "data": {
-      "full_name": "Jane Smith",
-      "mobile_number": "+919876543211"
-    }
-  }'
-```
-
-</CodeGroup>
-
-## Response
-
-### 200 — Success
-
-```json
-{
-  "results": {
-    "IsSucessful": true,
-    "ErrorCode": "000",
-    "ExceptionMessage": "Success",
-    "ReturnObject": true
-  }
-}
-```
+Obtain the `id` from the `Id` field returned by [Get Member Profile](/api-reference/members/get-member-profile).
