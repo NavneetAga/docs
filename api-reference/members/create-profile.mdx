@@ -1,0 +1,131 @@
+---
+title: Create Profile
+description: Enroll a new member in your loyalty program.
+---
+
+## Endpoint
+
+```
+POST https://{domain}/lbms-ingress/member/api/Member/CreateProfileWithAttributes?pintProgramId={ProgramId}
+```
+
+## Request
+
+### Headers
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
+
+### Query Parameters
+
+<ParamField query="pintProgramId" type="integer" required>
+  Your loyalty program ID.
+</ParamField>
+
+### Body
+
+<ParamField body="relation_reference" type="string" required>
+  Unique member identifier — typically an email-based reference (e.g. `jane.doe@example.com`). This is the primary key used to identify the member across all APIs.
+</ParamField>
+
+<ParamField body="full_name" type="string" required>
+  Member's full name.
+</ParamField>
+
+<ParamField body="email_id" type="string" required>
+  Member's email address.
+</ParamField>
+
+<ParamField body="mobile_number" type="string" required>
+  Member's mobile number.
+</ParamField>
+
+<ParamField body="status" type="string" required>
+  Member status code. Use `"5"` for Inactive (the standard initial state for new enrollments).
+</ParamField>
+
+<ParamField body="address" type="string">
+  Member's address.
+</ParamField>
+
+<ParamField body="gender" type="string">
+  Member's gender. Allowed values: `M`, `F`, `O`.
+</ParamField>
+
+<ParamField body="dob" type="string">
+  Date of birth in `YYYY-MM-DD` format.
+</ParamField>
+
+<Note>
+  Any mandatory custom attributes defined in your CPD schema must also be included. Optional custom attributes defined in your schema can also be passed.
+</Note>
+
+### Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url 'https://{domain}/lbms-ingress/member/api/Member/CreateProfileWithAttributes?pintProgramId=19' \
+  --header 'Authorization: bearer {token}' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "relation_reference": "jane.doe@example.com",
+    "full_name": "Jane Doe",
+    "email_id": "jane.doe@example.com",
+    "mobile_number": "+919876543210",
+    "gender": "F",
+    "dob": "1990-06-15",
+    "status": "5"
+  }'
+```
+
+```python Python
+import requests
+
+requests.post(
+    "https://{domain}/lbms-ingress/member/api/Member/CreateProfileWithAttributes",
+    params={"pintProgramId": 19},
+    headers={"Authorization": "bearer {token}", "Content-Type": "application/json"},
+    json={
+        "relation_reference": "jane.doe@example.com",
+        "full_name": "Jane Doe",
+        "email_id": "jane.doe@example.com",
+        "mobile_number": "+919876543210",
+        "gender": "F",
+        "dob": "1990-06-15",
+        "status": "5"
+    }
+)
+```
+
+</CodeGroup>
+
+## Response
+
+### 200 — Success
+
+```json
+{
+  "results": {
+    "IsSucessful": true,
+    "ErrorCode": "000",
+    "ExceptionMessage": "Success",
+    "ReturnObject": true
+  }
+}
+```
+
+### Error
+
+```json
+{
+  "results": {
+    "IsSucessful": false,
+    "ErrorCode": "E409",
+    "ExceptionMessage": "Member already exists"
+  }
+}
+```

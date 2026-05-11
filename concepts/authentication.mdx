@@ -1,0 +1,43 @@
+---
+title: Authentication
+description: How to authenticate with the Loyalife API using OAuth 2.0 client credentials.
+---
+
+## Overview
+
+Loyalife uses **OAuth 2.0 client credentials flow**. You exchange your `client_id` and `client_secret` for a short-lived JWT bearer token. Every subsequent API call must include this token in the `Authorization` header.
+
+```
+Authorization: bearer {token}
+```
+
+## Getting Your Credentials
+
+Your `client_id`, `client_secret`, and `ProgramId` are provided in your Xoxoday onboarding pack. They are also visible in Loyalife Admin under **Program Configuration → API**.
+
+## Token Expiry
+
+Tokens expire after a fixed period (visible in the `tokenExpiresOn` field in the auth response). Your integration should:
+
+1. Cache the token until expiry.
+2. Refresh the token before it expires or when you receive a `401` response.
+
+## Scopes
+
+The `scope` field is optional but allows you to bind the token to a specific member (`RelationReference`):
+
+```json
+{
+  "scope": "[\"LOGIN\",\"jane.doe@example.com\"]"
+}
+```
+
+When scope is omitted, the token is unscoped and can be used for all member operations under your program.
+
+## Security Notes
+
+<Warning>
+  - Never expose `client_secret` or bearer tokens in client-side code, logs, or version control.
+  - Always use HTTPS in production.
+  - Rotate credentials immediately if they are compromised — contact Xoxoday support.
+</Warning>

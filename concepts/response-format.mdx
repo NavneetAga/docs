@@ -1,0 +1,76 @@
+---
+title: Response Format
+description: All Loyalife API responses share a standard JSON envelope.
+---
+
+## Standard Envelope
+
+Every Loyalife API response wraps its payload in a `results` object:
+
+```json
+{
+  "results": {
+    "IsSucessful": true,
+    "ErrorCode": "000",
+    "ExceptionMessage": "Success",
+    "ReturnObject": { ... },
+    "Count": 0
+  }
+}
+```
+
+<Note>
+  `IsSucessful` is spelled with one "s" — this matches the service's actual response field name.
+</Note>
+
+## Fields
+
+| Field | Type | Description |
+|---|---|---|
+| `IsSucessful` | boolean | `true` if the request was processed successfully. |
+| `ErrorCode` | string | `"000"` on success. A non-zero code indicates an error. |
+| `ExceptionMessage` | string | `"Success"` on success; error description on failure. |
+| `ReturnObject` | any | The response payload — varies by endpoint. May be an object, array, boolean, or scalar. |
+| `Count` | integer | Number of records returned (used on list endpoints). |
+
+## Success Response
+
+```json
+{
+  "results": {
+    "IsSucessful": true,
+    "ErrorCode": "000",
+    "ExceptionMessage": "Success",
+    "ReturnObject": true,
+    "Count": 0
+  }
+}
+```
+
+## Error Response
+
+```json
+{
+  "results": {
+    "IsSucessful": false,
+    "ErrorCode": "E001",
+    "ExceptionMessage": "Member not found",
+    "ReturnObject": null,
+    "Count": 0
+  }
+}
+```
+
+## Checking for Errors
+
+Always check `IsSucessful` first — the HTTP status code alone is not sufficient. A `200 OK` response can still contain `IsSucessful: false` when the request was received but the business logic failed.
+
+```python
+response = requests.post(url, ...)
+data = response.json()["results"]
+
+if not data["IsSucessful"]:
+    raise Exception(f"API error {data['ErrorCode']}: {data['ExceptionMessage']}")
+
+return data["ReturnObject"]
+```

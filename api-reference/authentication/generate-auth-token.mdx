@@ -1,0 +1,130 @@
+---
+title: Generate Auth Token
+description: Exchange your client credentials for a JWT bearer token.
+---
+
+<Note>
+  This is the first call you make. The token returned here must be included in the `Authorization` header of every subsequent API request.
+</Note>
+
+## Endpoint
+
+```
+POST https://{domain}/lbms-ingress/oauth/api/Auth/Token
+```
+
+## Request
+
+### Headers
+
+| Header | Value | Required |
+|---|---|---|
+| `Content-Type` | `application/json` | Yes |
+| `Accept` | `application/json` | Yes |
+
+### Body
+
+<ParamField body="grant_type" type="string" required>
+  OAuth 2.0 grant type. Must be `client_credentials`.
+</ParamField>
+
+<ParamField body="client_id" type="string" required>
+  Your OAuth client ID, available in Loyalife Admin under **Program Configuration → API**.
+</ParamField>
+
+<ParamField body="client_secret" type="string" required>
+  Your OAuth client secret. Treat this like a password — never expose it in client-side code.
+</ParamField>
+
+<ParamField body="scope" type="string">
+  Optional. Binds the token to a specific member. Pass as a JSON-encoded array:
+  `["LOGIN", "{RelationReference}"]`. Omit for a general-purpose program token.
+</ParamField>
+
+### Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url 'https://{domain}/lbms-ingress/oauth/api/Auth/Token' \
+  --header 'Content-Type: application/json' \
+  --header 'Accept: application/json' \
+  --data '{
+    "grant_type": "client_credentials",
+    "client_id": "{client_id}",
+    "client_secret": "{client_secret}",
+    "scope": "[\"LOGIN\",\"{RelationReference}\"]"
+  }'
+```
+
+```python Python
+import requests
+
+res = requests.post(
+    "https://{domain}/lbms-ingress/oauth/api/Auth/Token",
+    headers={"Content-Type": "application/json", "Accept": "application/json"},
+    json={
+        "grant_type": "client_credentials",
+        "client_id": "{client_id}",
+        "client_secret": "{client_secret}",
+        "scope": '["LOGIN","{RelationReference}"]'
+    }
+)
+token = res.json()["results"]["token"]
+```
+
+```javascript Node.js
+const res = await fetch("https://{domain}/lbms-ingress/oauth/api/Auth/Token", {
+  method: "POST",
+  headers: { "Content-Type": "application/json", "Accept": "application/json" },
+  body: JSON.stringify({
+    grant_type: "client_credentials",
+    client_id: "{client_id}",
+    client_secret: "{client_secret}",
+    scope: '["LOGIN","{RelationReference}"]'
+  })
+});
+const { results } = await res.json();
+const token = results.token;
+```
+
+</CodeGroup>
+
+## Response
+
+### 200 — Success
+
+```json
+{
+  "results": {
+    "token": "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTUxMiIsInR5cCI6IkpXVCJ9...",
+    "tokenExpiresOn": "2026-03-16T15:15:02Z"
+  }
+}
+```
+
+<ResponseField name="results.token" type="string">
+  The JWT bearer token. Include as `Authorization: bearer {token}` in subsequent calls.
+</ResponseField>
+
+<ResponseField name="results.tokenExpiresOn" type="string">
+  ISO 8601 timestamp when the token expires. Refresh before this time.
+</ResponseField>
+
+### Error
+
+```json
+{
+  "results": {
+    "IsSucessful": false,
+    "ErrorCode": "E401",
+    "ExceptionMessage": "Invalid client credentials"
+  }
+}
+```
+
+## Usage Notes
+
+- Cache the token until `tokenExpiresOn`. Don't generate a new token per request.
+- On receiving a `401` from any API, refresh the token and retry once.

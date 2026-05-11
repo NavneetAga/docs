@@ -1,0 +1,133 @@
+---
+title: Insert Transaction
+description: Submit a synchronous loyalty transaction for a member.
+---
+
+## Endpoint
+
+```
+POST https://{domain}/lbms-ingress/transaction-lm/API/Transaction/InsertTransactionData?pintProgramId={ProgramId}
+```
+
+## When to Use
+
+Use this endpoint for **synchronous** single-transaction submission. The transaction is immediately processed by the Rule Engine to compute and award loyalty points.
+
+For high-volume or batch submissions, use [Insert Transaction V2](/api-reference/transactions/insert-transaction-v2) which processes transactions asynchronously and returns a `batch_id` for polling.
+
+## Request
+
+### Headers
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
+
+### Query Parameters
+
+<ParamField query="pintProgramId" type="integer" required>
+  Your loyalty program ID.
+</ParamField>
+
+### Body
+
+<ParamField body="transaction_id" type="string" required>
+  Your unique transaction reference. LBMS does not enforce global uniqueness — ensure uniqueness on your side if required by your contract.
+</ParamField>
+
+<ParamField body="amount" type="number" required>
+  The transaction amount.
+</ParamField>
+
+<ParamField body="transaction_date" type="string" required>
+  Date of the transaction in `YYYY-MM-DD` format.
+</ParamField>
+
+<ParamField body="product_code" type="string" required>
+  Product or merchant code as configured in your program (e.g. `SBD001`).
+</ParamField>
+
+<ParamField body="member_relation_reference" type="string" required>
+  The member's `RelationReference`.
+</ParamField>
+
+<ParamField body="transaction_type" type="string" required>
+  Transaction direction: `DR` for debit (purchase/earn) or `CR` for credit (reversal). Confirm the exact values with your onboarding pack.
+</ParamField>
+
+<ParamField body="sub_product_code" type="string">
+  Sub-product or SKU code.
+</ParamField>
+
+### Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url 'https://{domain}/lbms-ingress/transaction-lm/API/Transaction/InsertTransactionData?pintProgramId=19' \
+  --header 'Authorization: bearer {token}' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "transaction_id": "TXN-2026-001",
+    "amount": 1500,
+    "transaction_date": "2026-05-11",
+    "product_code": "RETAIL001",
+    "sub_product_code": "ELECTRONICS",
+    "member_relation_reference": "jane.doe@example.com",
+    "transaction_type": "DR"
+  }'
+```
+
+```python Python
+import requests
+
+requests.post(
+    "https://{domain}/lbms-ingress/transaction-lm/API/Transaction/InsertTransactionData",
+    params={"pintProgramId": 19},
+    headers={"Authorization": "bearer {token}", "Content-Type": "application/json"},
+    json={
+        "transaction_id": "TXN-2026-001",
+        "amount": 1500,
+        "transaction_date": "2026-05-11",
+        "product_code": "RETAIL001",
+        "member_relation_reference": "jane.doe@example.com",
+        "transaction_type": "DR"
+    }
+)
+```
+
+</CodeGroup>
+
+## Response
+
+### 200 — Success
+
+```json
+{
+  "results": {
+    "IsSucessful": true,
+    "ErrorCode": "000",
+    "ExceptionMessage": "Success",
+    "ReturnObject": true
+  }
+}
+```
+
+### Error
+
+```json
+{
+  "results": {
+    "IsSucessful": false,
+    "ErrorCode": "E400",
+    "ExceptionMessage": "Invalid product code"
+  }
+}
+```
+
+## Notes
+
+- Field names and validation rules are enforced per your program's event template — align `product_code`, `transaction_type`, and mandatory columns with your onboarding pack.
+- Custom attributes (e.g. store, quantity, category) must be created in Loyalife Admin before including them in the payload.

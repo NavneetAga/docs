@@ -1,0 +1,120 @@
+---
+title: Get Statement Summary
+description: Retrieve a member's aggregated points balance and loyalty statement totals.
+---
+
+## Endpoint
+
+```
+POST https://{domain}/lbms-ingress/transaction-lm/API/Transaction/GetMemberStatementSummary
+```
+
+## When to Use
+
+Use this to display a member's **current points balance** and breakdown by category (earned, redeemed, expired, etc.). This is the primary endpoint for a loyalty wallet or account summary screen.
+
+## Request
+
+### Headers
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
+
+### Body
+
+<ParamField body="RelationReference" type="string" required>
+  The member's unique reference.
+</ParamField>
+
+<ParamField body="TransactionCurrency" type="string" required>
+  Use `"DEFAULT"` or your program's currency code.
+</ParamField>
+
+<ParamField body="RelationType" type="integer" required>
+  Use `4` for customers.
+</ParamField>
+
+<ParamField body="ProgramId" type="integer" required>
+  Your loyalty program ID.
+</ParamField>
+
+### Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url 'https://{domain}/lbms-ingress/transaction-lm/API/Transaction/GetMemberStatementSummary' \
+  --header 'Authorization: bearer {token}' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "RelationReference": "jane.doe@example.com",
+    "TransactionCurrency": "DEFAULT",
+    "RelationType": 4,
+    "ProgramId": 19
+  }'
+```
+
+```python Python
+import requests
+
+res = requests.post(
+    "https://{domain}/lbms-ingress/transaction-lm/API/Transaction/GetMemberStatementSummary",
+    headers={"Authorization": "bearer {token}", "Content-Type": "application/json"},
+    json={
+        "RelationReference": "jane.doe@example.com",
+        "TransactionCurrency": "DEFAULT",
+        "RelationType": 4,
+        "ProgramId": 19
+    }
+)
+summary = res.json()["results"]["ReturnObject"]
+balance = summary["PointBalance"]
+```
+
+</CodeGroup>
+
+## Response
+
+### 200 — Success
+
+```json
+{
+  "results": {
+    "IsSucessful": true,
+    "ErrorCode": "000",
+    "ExceptionMessage": "Success",
+    "ReturnObject": {
+      "Bonus": 500,
+      "Spend": 1200,
+      "Redeem": 300,
+      "Partner": 0,
+      "Purchased": 0,
+      "ExpiredPoints": 50,
+      "PointBalance": 1350
+    }
+  }
+}
+```
+
+<ResponseField name="results.ReturnObject.PointBalance" type="integer">
+  Current redeemable points balance.
+</ResponseField>
+
+<ResponseField name="results.ReturnObject.Bonus" type="integer">
+  Total bonus points earned.
+</ResponseField>
+
+<ResponseField name="results.ReturnObject.Spend" type="integer">
+  Total points earned through spend/purchase transactions.
+</ResponseField>
+
+<ResponseField name="results.ReturnObject.Redeem" type="integer">
+  Total points redeemed.
+</ResponseField>
+
+<ResponseField name="results.ReturnObject.ExpiredPoints" type="integer">
+  Total points that have expired.
+</ResponseField>

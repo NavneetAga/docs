@@ -1,11 +1,11 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "Loyalife API",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#E0173D",
+    "light": "#FF4D6D",
+    "dark": "#B50F2D"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -14,59 +14,73 @@
         "tab": "Guides",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
               "index",
-              "quickstart",
-              "development"
+              "quickstart"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Core Concepts",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/components",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "Agent ready",
-            "pages": [
-              "agent-ready/prompt",
-              "agent-ready/visibility",
-              "agent-ready/contextual",
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "concepts/authentication",
+              "concepts/response-format",
+              "concepts/idempotency"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API Reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Overview",
             "pages": [
               "api-reference/introduction"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Authentication",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api-reference/authentication/generate-auth-token"
+            ]
+          },
+          {
+            "group": "Member Management",
+            "pages": [
+              "api-reference/members/create-profile",
+              "api-reference/members/get-member-profile",
+              "api-reference/members/update-profile",
+              "api-reference/members/get-member-by-attribute",
+              "api-reference/members/check-credentials"
+            ]
+          },
+          {
+            "group": "OTP",
+            "pages": [
+              "api-reference/otp/generate-otp",
+              "api-reference/otp/generate-otp-by-relation",
+              "api-reference/otp/verify-otp",
+              "api-reference/otp/verify-otp-by-relation"
+            ]
+          },
+          {
+            "group": "Transactions",
+            "pages": [
+              "api-reference/transactions/insert-transaction",
+              "api-reference/transactions/insert-transaction-v2",
+              "api-reference/transactions/poll-batch-status",
+              "api-reference/transactions/get-transaction-summary",
+              "api-reference/transactions/get-statement-summary",
+              "api-reference/transactions/get-expiry-schedule"
+            ]
+          },
+          {
+            "group": "Points Redemption",
+            "pages": [
+              "api-reference/payment-gateway/check-availability",
+              "api-reference/payment-gateway/redeem-points",
+              "api-reference/payment-gateway/reversal-points"
             ]
           }
         ]
@@ -75,14 +89,14 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Support",
+          "href": "mailto:support@xoxoday.com",
+          "icon": "envelope"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Loyalife",
+          "href": "https://loyalife.xoxoday.com",
+          "icon": "globe"
         }
       ]
     }
@@ -95,32 +109,30 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@xoxoday.com"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Get API Keys",
+      "href": "https://loyalife.xoxoday.com"
     }
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "linkedin": "https://linkedin.com/company/xoxoday"
     }
   }
 }

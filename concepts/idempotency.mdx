@@ -1,0 +1,53 @@
+---
+title: Idempotency
+description: How to safely retry transaction submissions without duplicate processing.
+---
+
+## Why Idempotency Matters
+
+Network timeouts and ambiguous responses are unavoidable. Without idempotency, retrying a failed request can result in the same transaction being processed twice — awarding duplicate loyalty points.
+
+Loyalife's transaction APIs support client-controlled idempotency via the `_xoxo_api_client_idempotency` field.
+
+## How It Works
+
+```json
+{
+  "_xoxo_api_client_idempotency": "order-invoice-2026-00123",
+  "transaction_id": "TXN-2026-00123",
+  "amount": 500,
+  ...
+}
+```
+
+- **Generate once per logical submission** — use an ID tied to the business event (e.g. purchase order ID, invoice ID, or a UUID you generate once for each intended processing attempt).
+- **Reuse on retries** — if the first submission times out or returns an ambiguous response, retry with the **same** `_xoxo_api_client_idempotency`. The platform will recognise the duplicate and not process it twice.
+- **Generate a new ID for new submissions** — only generate a new `_xoxo_api_client_idempotency` when you genuinely intend a new business transaction.
+
+## `transaction_id` vs `_xoxo_api_client_idempotency`
+
+| Field | Enforced as unique by LBMS? | Purpose |
+|---|---|---|
+| `transaction_id` | No | Your business identifier for the row — used for your own reconciliation. |
+| `_xoxo_api_client_idempotency` | Program-dependent | Safe retry key — prevents double-processing on retries. |
+
+<Warning>
+  LBMS does **not** enforce global uniqueness on `transaction_id`. If your processes require uniqueness, enforce it on your side. Confirm with your Xoxoday implementation contact whether `_xoxo_api_client_idempotency` is mapped to a unique column in your program configuration.
+</Warning>
+
+## Integration Checklist
+
+<Steps>
+  <Step title="Generate an idempotency key">
+    Create a stable, unique key per logical business request — e.g. the purchase order ID.
+  </Step>
+  <Step title="Submit the transaction">
+    Include `_xoxo_api_client_idempotency` in the request body.
+  </Step>
+  <Step title="On timeout or ambiguous response, retry">
+    Reuse the **same** `_xoxo_api_client_idempotency`. Do not generate a new one.
+  </Step>
+  <Step title="On confirmed success or failure, move on">
+    Use [Poll Batch Status](/api-reference/transactions/poll-batch-status) to confirm the outcome of a V2 batch submission.
+  </Step>
+</Steps>

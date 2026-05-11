@@ -1,33 +1,58 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: API Reference
+description: Complete reference for all 17 Loyalife API endpoints across 4 modules.
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Base URL
 
-## Welcome
+All API endpoints share the same base domain:
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+```
+https://loyalife-api.xoxoday.in
+```
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+Replace `loyalife-api.xoxoday.in` with the domain provided in your onboarding pack for staging or UAT environments.
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+Every endpoint (except `GenerateAuthToken` itself) requires a bearer token in the `Authorization` header:
+
+```
+Authorization: bearer {token}
+```
+
+See [Authentication](/concepts/authentication) for details on obtaining and refreshing tokens.
+
+## Modules
+
+| Module | Path Prefix | APIs |
+|---|---|---|
+| **OAuth / Auth** | `/lbms-ingress/oauth/` | 1 |
+| **Member (CPD)** | `/lbms-ingress/member/` | 9 |
+| **Transaction (TXN)** | `/lbms-ingress/transaction-lm/` | 6 |
+| **Payment Gateway (PG)** | `/lbms-ingress/pg-lm/` | 3 |
+
+## Common Response Shape
+
+All responses use a standard envelope. See [Response Format](/concepts/response-format).
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
+{
+  "results": {
+    "IsSucessful": true,
+    "ErrorCode": "000",
+    "ExceptionMessage": "Success",
+    "ReturnObject": { },
+    "Count": 0
   }
-]
+}
 ```
+
+## Common Parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `ProgramId` / `pintProgramId` | integer | Your loyalty program ID, issued at onboarding. |
+| `RelationReference` | string | The member's unique identifier (e.g. `jane.doe@example.com`). |
+| `RelationType` | integer | `4` = customer (used in almost all endpoints). |
+| `TransactionCurrency` | string | `"DEFAULT"` unless your program uses a specific currency code. |

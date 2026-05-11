@@ -1,0 +1,169 @@
+---
+title: Insert Transaction V2 (Batch)
+description: Submit one or more transactions asynchronously for bulk processing.
+---
+
+## Endpoint
+
+```
+POST https://{domain}/lbms-ingress/transaction-lm/API/Transaction/InsertTransactionDataV2?pintProgramId={ProgramId}
+```
+
+## When to Use
+
+Use this endpoint when you need to submit **multiple transactions** or want **asynchronous processing**. The API queues the transactions and returns a `batch_id` — use [Poll Batch Status](/api-reference/transactions/poll-batch-status) to check outcomes.
+
+For a single synchronous transaction, use [Insert Transaction](/api-reference/transactions/insert-transaction).
+
+## Request
+
+### Headers
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `Bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
+| `accept` | `*/*` | Optional |
+
+### Query Parameters
+
+<ParamField query="pintProgramId" type="integer" required>
+  Your loyalty program ID.
+</ParamField>
+
+### Body
+
+The request body is a **JSON array** of transaction objects.
+
+<ParamField body="transaction_id" type="string">
+  Your transaction identifier. LBMS does **not** enforce uniqueness — manage uniqueness on your side if required.
+</ParamField>
+
+<ParamField body="_xoxo_api_client_idempotency" type="string">
+  Recommended. A unique key per logical submission (e.g. purchase order ID). Reuse the same value when retrying after network errors. Generate a new value only for genuinely new submissions. See [Idempotency](/concepts/idempotency).
+</ParamField>
+
+<ParamField body="amount" type="number" required>
+  The transaction amount.
+</ParamField>
+
+<ParamField body="transaction_date" type="string" required>
+  Date in `YYYY-MM-DD` format.
+</ParamField>
+
+<ParamField body="product_code" type="string" required>
+  Product identifier as configured in your program.
+</ParamField>
+
+<ParamField body="member_relation_reference" type="string" required>
+  The member's `RelationReference`.
+</ParamField>
+
+<ParamField body="transaction_type" type="string" required>
+  `dr` or `cr` as defined for your program.
+</ParamField>
+
+<ParamField body="sub_product_code" type="string">
+  Sub-product or SKU code.
+</ParamField>
+
+### Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url 'https://{domain}/lbms-ingress/transaction-lm/API/Transaction/InsertTransactionDataV2?pintProgramId=19' \
+  --header 'Authorization: Bearer {token}' \
+  --header 'Content-Type: application/json' \
+  --data '[
+    {
+      "transaction_id": "TXN-2026-001",
+      "_xoxo_api_client_idempotency": "order-inv-2026-001",
+      "amount": 1500,
+      "transaction_date": "2026-05-11",
+      "product_code": "RETAIL001",
+      "sub_product_code": "ELECTRONICS",
+      "member_relation_reference": "jane.doe@example.com",
+      "transaction_type": "dr"
+    },
+    {
+      "transaction_id": "TXN-2026-002",
+      "_xoxo_api_client_idempotency": "order-inv-2026-002",
+      "amount": 800,
+      "transaction_date": "2026-05-11",
+      "product_code": "RETAIL001",
+      "member_relation_reference": "john.smith@example.com",
+      "transaction_type": "dr"
+    }
+  ]'
+```
+
+```python Python
+import requests
+
+transactions = [
+    {
+        "transaction_id": "TXN-2026-001",
+        "_xoxo_api_client_idempotency": "order-inv-2026-001",
+        "amount": 1500,
+        "transaction_date": "2026-05-11",
+        "product_code": "RETAIL001",
+        "member_relation_reference": "jane.doe@example.com",
+        "transaction_type": "dr"
+    }
+]
+
+res = requests.post(
+    "https://{domain}/lbms-ingress/transaction-lm/API/Transaction/InsertTransactionDataV2",
+    params={"pintProgramId": 19},
+    headers={"Authorization": "Bearer {token}", "Content-Type": "application/json"},
+    json=transactions
+)
+
+batch_id = res.json()["results"]["ReturnObject"]["batch_id"]
+```
+
+</CodeGroup>
+
+## Response
+
+### 202 — Accepted
+
+```json
+{
+  "results": {
+    "IsSucessful": true,
+    "ErrorCode": "000",
+    "ExceptionMessage": "Success",
+    "ReturnObject": {
+      "batch_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "message": "Transactions queued successfully",
+      "total_transactions": 2
+    },
+    "Count": 0
+  }
+}
+```
+
+<ResponseField name="results.ReturnObject.batch_id" type="string">
+  UUID identifying this batch. Pass this to [Poll Batch Status](/api-reference/transactions/poll-batch-status) to check processing outcomes.
+</ResponseField>
+
+<ResponseField name="results.ReturnObject.total_transactions" type="integer">
+  Number of transactions accepted into the batch.
+</ResponseField>
+
+## What Happens Next
+
+<Steps>
+  <Step title="Store the batch_id">
+    Save `ReturnObject.batch_id` in your system for polling.
+  </Step>
+  <Step title="Poll for completion">
+    Call [Poll Batch Status](/api-reference/transactions/poll-batch-status) with the `batch_id` until `pending` reaches `0` or your SLA timeout is reached.
+  </Step>
+  <Step title="Handle per-item outcomes">
+    Each item will resolve to `SUCCESS`, `FAILED`, `ON HOLD`, `PARTIAL HOLD`, or `PENDING`.
+  </Step>
+</Steps>

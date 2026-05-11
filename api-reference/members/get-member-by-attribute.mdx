@@ -1,0 +1,91 @@
+---
+title: Get Member by Attribute
+description: Look up a member using a unique attribute such as email when RelationReference is unknown.
+---
+
+## Endpoint
+
+```
+GET https://{domain}/lbms-ingress/member/api/Member/GetMemberDetailsByUniqueAttribute
+```
+
+## When to Use
+
+Use this endpoint when you know a member's email or another unique field but don't have their `RelationReference`. The attribute must be:
+- Part of your User schema in Loyalife Admin
+- Marked as **unique** in the schema
+
+## Request
+
+### Headers
+
+| Header | Value | Required |
+|---|---|---|
+| `Authorization` | `bearer {token}` | Yes |
+| `Content-Type` | `application/json` | Yes |
+
+### Query Parameters
+
+<ParamField query="pintProgramId" type="integer" required>
+  Your loyalty program ID.
+</ParamField>
+
+<ParamField query="pstrUniqueAttributeKey" type="string" required>
+  The attribute name to search by. Examples: `email_id`, `mobile_number`, `national_id`. **URL-encode before passing.**
+</ParamField>
+
+<ParamField query="pstrUniqueAttributeValue" type="string" required>
+  The value to search for. **URL-encode before passing.**
+</ParamField>
+
+### Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url 'https://{domain}/lbms-ingress/member/api/Member/GetMemberDetailsByUniqueAttribute?pintProgramId=19&pstrUniqueAttributeKey=email_id&pstrUniqueAttributeValue=jane.doe%40example.com' \
+  --header 'Authorization: bearer {token}' \
+  --header 'Content-Type: application/json'
+```
+
+```python Python
+import requests
+
+res = requests.get(
+    "https://{domain}/lbms-ingress/member/api/Member/GetMemberDetailsByUniqueAttribute",
+    params={
+        "pintProgramId": 19,
+        "pstrUniqueAttributeKey": "email_id",
+        "pstrUniqueAttributeValue": "jane.doe@example.com"
+    },
+    headers={"Authorization": "bearer {token}", "Content-Type": "application/json"}
+)
+member = res.json()["results"]["ReturnObject"]
+```
+
+</CodeGroup>
+
+## Response
+
+### 200 — Success
+
+```json
+{
+  "results": {
+    "IsSucessful": true,
+    "ErrorCode": "000",
+    "ExceptionMessage": "Success",
+    "ReturnObject": {
+      "Id": 12345,
+      "FullName": "Jane Doe",
+      "Email": "jane.doe@example.com",
+      "RelationReference": "jane.doe@example.com",
+      "TierName": "Silver",
+      "TotalPoints": 1500
+    }
+  }
+}
+```
+
+The `ReturnObject` contains the full member profile — same shape as [Get Member Profile](/api-reference/members/get-member-profile).
